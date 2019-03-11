@@ -56,6 +56,8 @@ class Supersonic_Zero(Markup):
         """         
         self.tag = 'Fidelity_Zero_Supersonic'
         
+        print('Entered supersonic zero analysis class')
+
         # correction factors
         settings =  self.settings
         settings.fuselage_lift_correction           = 1.14
@@ -102,6 +104,8 @@ class Supersonic_Zero(Markup):
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft # SZ
+
+        #print('Drag is ', compute.drag)
         
         
     def initialize(self):

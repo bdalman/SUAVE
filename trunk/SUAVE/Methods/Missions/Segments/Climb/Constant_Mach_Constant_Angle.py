@@ -15,7 +15,7 @@ import SUAVE
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Missions-Segments-Climb
-def initialize_conditions(segment):
+def initialize_conditions_unpack_unknowns(segment):
     """Sets the specified conditions which are given for the segment type.
     
     Assumptions:

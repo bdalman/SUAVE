@@ -88,10 +88,20 @@ def parasite_drag_propulsor(state,settings,geometry):
     tn_mask = ((Mc > Mdiv) & (Mc < 1.05))
     sp_mask = (Mc >= 1.05)
     
-    k_prop[sb_mask] = k_prop_sub
-    # basic interpolation for transonic
-    k_prop[tn_mask] = (k_prop_sup-k_prop_sub)*(Mc[tn_mask]-Mdiv[tn_mask])/(1.05-Mdiv[tn_mask]) + k_prop_sub
-    k_prop[sp_mask] = k_prop_sup
+    #Debug prints
+    #print(sb_mask, tn_mask, sp_mask)
+    #print('Just printed once!')
+
+    #If statement seems to fix the issue about unsubscriptable arrays. But what else did it break? To return just
+    #remove all the if and elif statements, keeping other parts
+    if any(sb_mask):
+        k_prop[sb_mask] = k_prop_sub
+    if any(tn_mask):
+        # basic interpolation for transonic
+        k_prop[tn_mask] = (k_prop_sup-k_prop_sub)*(Mc[tn_mask]-Mdiv[tn_mask])/(1.05-Mdiv[tn_mask]) + k_prop_sub
+    if any(sp_mask):
+        #print(k_prop[tn_mask])
+        k_prop[sp_mask] = k_prop_sup
     
     # --------------------------------------------------------
     # find the final result    
