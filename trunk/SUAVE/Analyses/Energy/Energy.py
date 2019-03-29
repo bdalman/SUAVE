@@ -59,8 +59,9 @@ class Energy(Analysis):
                 Properties Used:
                 N/A                
             """
-                
-            
+        
+        #print('Printing state in energy!')
+        #print(state.conditions)    
         network = self.network
         results = network.evaluate_thrust(state) 
         

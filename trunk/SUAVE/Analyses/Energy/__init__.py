@@ -3,3 +3,4 @@
 # @ingroup Analyses
 
 from .Energy import Energy
+from .Steady_Flight import Steady_Flight

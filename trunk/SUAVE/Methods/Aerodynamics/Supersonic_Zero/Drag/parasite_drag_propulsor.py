@@ -48,7 +48,6 @@ def parasite_drag_propulsor(state,settings,geometry):
     """
     
     # unpack inputs
-    
     conditions    = state.conditions
     configuration = settings
     propulsor     = geometry

@@ -61,11 +61,12 @@ def parasite_drag_wing(state,settings,geometry):
     # unpack inputs
     C = settings.wing_parasite_drag_form_factor
     freestream = state.conditions.freestream
-    
+
     # conditions
     Mc  = freestream.mach_number
     Tc  = freestream.temperature    
     re  = freestream.reynolds_number     
+
     
     wing = geometry
     wing_parasite_drag = 0.0
@@ -77,6 +78,10 @@ def parasite_drag_wing(state,settings,geometry):
     t_c_w                     = wing.thickness_to_chord
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     
+
+    #print('Overiding freestream Re in wings!')
+    #re = 0.75e6
+    #print(re)
     
     # if wing has segments, compute and sum parasite drag of each segment
     
@@ -98,7 +103,7 @@ def parasite_drag_wing(state,settings,geometry):
                 sweep_seg = wing.Segments[i_segs].sweeps.quarter_chord    
                 xtu       = wing.transition_x_upper
                 xtl       = wing.transition_x_lower      
-                
+
                 if i_segs == 0:
                     chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
                     chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent   
@@ -128,6 +133,7 @@ def parasite_drag_wing(state,settings,geometry):
         
                 # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for segments
                 segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_seg,Mc,Tc,xtu,xtl,sweep_seg,t_c_w,Sref_seg,Swet_seg,C)    
+                
                 
                 total_wetted_area            += Swet_seg
                 total_segment_parasite_drag  += segment_parasite_drag*Sref_seg   
@@ -198,7 +204,12 @@ def parasite_drag_wing(state,settings,geometry):
 def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
    
     # reynolds number
+    #print('Re for wing is: ', re, mac_w)
     Re_w = re*mac_w  
+
+    print('Hard coding in transition location wing!')
+    xtu = 0.999
+    xtl = 0.999
     
     # skin friction  coefficient, upper
     cf_w_u, k_comp_u, k_reyn_u = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtu)

@@ -63,11 +63,15 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     # TODO: do this correctly
     total_gap_drag = 0.000
 
+    print('Warning: Nacelle Misc drag and fuselage_upsweep off - SZ_Misc_drag methods')
     # ------------------------------------------------------------------
     #   Nacelle base drag
     # ------------------------------------------------------------------
+    
     total_nacelle_base_drag = 0.0
+
     nacelle_base_drag_results = Data()
+    '''
     
     for propulsor in propulsors.values():
         
@@ -79,13 +83,13 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
         
         # increment
         total_nacelle_base_drag += nacelle_base_drag
-        
+    '''        
 
     # ------------------------------------------------------------------
     #   Fuselage upsweep drag
     # ------------------------------------------------------------------
-    fuselage_upsweep_drag = 0.006 / vehicle_reference_area
-    
+    #fuselage_upsweep_drag = 0.006 / vehicle_reference_area      #Need to write a better correction for smaller vehicles
+    fuselage_upsweep_drag = 0.0
     # ------------------------------------------------------------------
     #   Fuselage base drag
     # ------------------------------------------------------------------    

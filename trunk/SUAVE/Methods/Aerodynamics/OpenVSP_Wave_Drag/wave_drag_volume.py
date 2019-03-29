@@ -55,10 +55,10 @@ def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
     vsp.ClearVSPModel()
     vsp.ReadVSPFile(tag+'.vsp3')
     vsp.SetIntAnalysisInput('WaveDrag', 'NumSlices', [num_slices])
-    vsp.SetIntAnalysisInput('WaveDrag', 'NumRotSects', [num_rots]) 
+    vsp.SetIntAnalysisInput('WaveDrag', 'NumRotSects', [num_rots])
     
     if flag105 is True:
-        vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [1.05])    
+        vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [1.05])   
         ridwd = vsp.ExecAnalysis('WaveDrag')        
         cd_w = vsp.GetDoubleResults(ridwd,'CDWave')
         cd_w = cd_w[0]*100./ref_area # default ref area in VSP doesn't seem to have an easy change
@@ -79,5 +79,6 @@ def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
                 comb_array   = np.append(old_array,new_save_row,axis=0)
                 np.save('volume_drag_data_' + geometry.tag + '.npy', comb_array)
             cd_w_all[ii] = cd_w
+    
     
     return cd_w_all

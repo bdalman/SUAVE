@@ -56,7 +56,7 @@ class Supersonic_Zero(Markup):
         """         
         self.tag = 'Fidelity_Zero_Supersonic'
         
-        print('Entered supersonic zero analysis class')
+        #print('Entered supersonic zero analysis class')
 
         # correction factors
         settings =  self.settings
@@ -94,8 +94,9 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        print('Warning: Parasite drag propulsors turned off in Supersonic_Zero')
+        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ

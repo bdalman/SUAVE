@@ -55,12 +55,12 @@ def induced_drag_aircraft(state,settings,geometry):
     ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     
-    #print('Printing mach number for induced drag:')
+    
     #print(mach)
 
     
     if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp)   
     
     total_induced_drag = np.zeros_like(mach)
     if any(mach<.95):
@@ -68,7 +68,8 @@ def induced_drag_aircraft(state,settings,geometry):
     if any(mach>=.95):
         total_induced_drag[mach>=.95] = aircraft_lift[mach>=.95]**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
                                                                                     # which is not computed here
-        
+     
+    #print('Induced drag: ', total_induced_drag)   
     # store data
     try:
         conditions.aerodynamics.drag_breakdown.induced = Data(

@@ -121,6 +121,11 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 		eff_diams.append(segment.effective_diameter)
 		
 		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
+			
+			# There's some error happening here with it entering the loop at the wrong point I think, but I don't have time to fix it atm
+			print(fuselage.vsp_data.xsec_num-1)
+			print(segment[ii+1].percent_x_location)
+			print(segment.percent_x_location)
 			segment.length = fuselage.lengths.total*(fuselage.Segments[ii+1].percent_x_location - segment.percent_x_location) * units_factor
 		else:
 			segment.length = 0.0

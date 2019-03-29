@@ -58,6 +58,7 @@ def parasite_total(state,settings,geometry):
     for wing in wings.values():
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[wing.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[wing.tag].parasite_drag_coefficient = parasite_drag * wing.areas.reference/vehicle_reference_area
+        wing_holder = parasite_drag * wing.areas.reference/vehicle_reference_area
         total_parasite_drag += parasite_drag * wing.areas.reference/vehicle_reference_area
  
     # from fuselage
@@ -66,15 +67,19 @@ def parasite_total(state,settings,geometry):
             continue
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+        
+        fuse_holder = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
     
     # from propulsors
+    print('Warning: Propulsor also turned off in parasite_total methods!')
+    '''
     for propulsor in propulsors.values():
         ref_area = propulsor.nacelle_diameter**2 / 4 * np.pi
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
         total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
- 
+    '''
     # from pylons
     try:
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient

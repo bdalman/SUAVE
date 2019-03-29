@@ -133,6 +133,10 @@ def update_freestream(segment):
     # Reynolds number
     Re = rho * Vmag / mu  # per m
 
+    print('Overiding Re calc in Methods-Missions-Segments-Common-Aerodynamics!')
+
+    Re = 5.017e6       # This freestream will set our fuse to ~750,000
+
     # pack
     conditions.freestream.velocity         = Vmag
     conditions.freestream.mach_number      = M

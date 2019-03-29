@@ -61,8 +61,11 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
-    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
-    propulsor      = geometry.propulsors[propulsor_name]
+
+
+    print('Warning: Calculating Compress_drag w/o propulsors in OpenVSP Methods!')  #Commented these and line 99 out
+    #propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
+    #propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -93,7 +96,7 @@ def compressibility_drag_total(state,settings,geometry):
         main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
-        num_engines = propulsor.number_of_engines
+        #num_engines = propulsor.number_of_engines
 
         # Get the lift coefficient of the wing.
         # Note that this is not the total CL
@@ -165,7 +168,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown.compressible.total_volume = cd_c_v
     drag_breakdown.compressible.total_lift   = cd_c_l
     
-
+    #print('Printing compressible drag: ', drag_breakdown)
     return cd_c
 
 

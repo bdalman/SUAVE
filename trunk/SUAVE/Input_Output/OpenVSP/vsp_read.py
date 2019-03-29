@@ -11,6 +11,11 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
+
+from .vsp_read_fuselage import vsp_read_fuselage
+from .vsp_read_wing import vsp_read_wing
+#from SUAVE.Input_Output.OpenVSP import vsp_read_fuselage
+#from SUAVE.Input_Output.OpenVSP import vsp_read_wing
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp as vsp
@@ -141,12 +146,16 @@ def vsp_read(tag, units_type='SI'):
 	# -----------------------------
 	# MANUAL VSP ENTRY & PROCESSING
 	# -----------------------------		
+
+	fuselage_id = 'AYEZXOSCJV'
+	wing_id = 'HIXOMVEORB'
+
 	
-	#fuselage = read_vsp_fuselage(fuselage_id, units_type=units_type) # Replace fuselage_id manually.
-	#vehicle.append_component(fuselage)
+	fuselage = vsp_read_fuselage(fuselage_id, units_type=units_type) # Replace fuselage_id manually.
+	vehicle.append_component(fuselage)
 	
-	#wing = read_vsp_wing(wing_id, units_type=units_type)		# Replace wing_id manually.
-	#vehicle.append_component(wing)		
+	wing = vsp_read_wing(wing_id, units_type=units_type)		# Replace wing_id manually.
+	vehicle.append_component(wing)		
 	
 	#prop = read_vsp_prop(prop_id, units_type=units_type)		# Replace prop_id manually.	
 	#vehicle.append_component(prop)
@@ -155,30 +164,32 @@ def vsp_read(tag, units_type='SI'):
 	# --------------------------------
 	# AUTOMATIC VSP ENTRY & PROCESSING
 	# --------------------------------		
-		
-	#for geom in vsp_geoms:
-		#if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
-			#vsp_fuselages.append(geom)
-		#if vsp.GETGEOMTYPE(str(geom)) == 'WING':
-			#vsp_wings.append(geom)
-		#if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
-			#vsp_props.append(geom)
+
+	# This doesn't work because GETGEOMTYPE not implemented yet
+	'''	
+	for geom in vsp_geoms:
+		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
+			vsp_fuselages.append(geom)
+		if vsp.GETGEOMTYPE(str(geom)) == 'WING':
+			vsp_wings.append(geom)
+		if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
+			vsp_props.append(geom)
 	
 	# Read VSP geoms and store in SUAVE components.
 	
-	#for vsp_fuselage in vsp_fuselages:
-		#fuselage_id = vsp_fuselages[vsp_fuselage]
-		#fuselage = read_vsp_fuselage(fuselage_id, units_type)
-		#vehicle.append_component(fuselage)
+	for vsp_fuselage in vsp_fuselages:
+		fuselage_id = vsp_fuselages[vsp_fuselage]
+		fuselage = read_vsp_fuselage(fuselage_id, units_type)
+		vehicle.append_component(fuselage)
 	
-	#for vsp_wing in vsp_wings:
-		#wing_id = vsp_wings[vsp_wing]
-		#wing = read_vsp_wing(wing_id, units_type)
-		#vehicle.append_component(wing)		
+	for vsp_wing in vsp_wings:
+		wing_id = vsp_wings[vsp_wing]
+		wing = read_vsp_wing(wing_id, units_type)
+		vehicle.append_component(wing)		
 	
 	#for vsp_prop in vsp_props:
 		#prop_id = vsp_props[vsp_prop]
 		#prop = read_vsp_prop(prop_id, units_type)		
 		#vehicle.append_component(prop)
-	
+	'''
 	return vehicle

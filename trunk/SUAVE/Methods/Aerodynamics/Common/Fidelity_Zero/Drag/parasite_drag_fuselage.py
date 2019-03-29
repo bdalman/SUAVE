@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_mixed_flat_plate
 from SUAVE.Core import Data
 
 import numpy as np
@@ -66,8 +67,11 @@ def parasite_drag_fuselage(state,settings,geometry):
     # reynolds number
     Re_fus = re*(l_fus)
     
+    print('Warning: A bunch of changes to parasite_drag_fuselage skin_friction_coefficient')
+    xt = 0.999
     # skin friction coefficient
-    cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
+    #cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
+    cf_fus, k_comp, k_reyn = compressible_mixed_flat_plate(Re_fus,Mc,Tc, xt)
     
     # form factor for cylindrical bodies
     d_d = float(d_fus)/float(l_fus)
@@ -103,4 +107,5 @@ def parasite_drag_fuselage(state,settings,geometry):
     except:
         print("Drag Polar Mode fuse parasite")
     
+
     return fuselage_parasite_drag

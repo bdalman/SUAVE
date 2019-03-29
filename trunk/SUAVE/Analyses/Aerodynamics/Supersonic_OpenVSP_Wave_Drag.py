@@ -58,20 +58,21 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         # correction factors
         settings =  self.settings
         settings.fuselage_lift_correction           = 1.14
-        settings.trim_drag_correction_factor        = 1.02
+        settings.trim_drag_correction_factor        = 1.00      #Trim correction changed from 1.02 to 1.00 for small delta wing
         settings.wing_parasite_drag_form_factor     = 1.1
-        settings.fuselage_parasite_drag_form_factor = 2.3
-        settings.aircraft_span_efficiency_factor    = 0.78
-        settings.viscous_lift_dependent_drag_factor = 0.38
+        settings.fuselage_parasite_drag_form_factor = 2.3       #Very small change in fuse para drag
+        settings.aircraft_span_efficiency_factor    = 0.78      #Seems to not effect supersonic missions
+        settings.viscous_lift_dependent_drag_factor = 0.38      #Also doesn't effect supersonic, but small effect on subsonic induced drag
         settings.drag_coefficient_increment         = 0.0000
         settings.oswald_efficiency_factor           = None
+        settings.spoiler_drag_increment             = 0.00      #Line added to calc spoiler drag
         settings.maximum_lift_coefficient           = np.inf
         settings.number_slices                      = 20
-        settings.number_rotations                   = 10
+        settings.number_rotations                   = 30
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 5
-        settings.number_panels_chordwise = 1
+        settings.number_panels_spanwise = 10
+        settings.number_panels_chordwise = 8
         
         
         # build the evaluation process
@@ -92,15 +93,17 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        print('Warning: Propulsor parasite drag turned off in Analyses_Supersonic_OpenVSP_Wave_Drag')
+        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.spoiler                       = Common.Drag.spoiler_drag    #Line added to calc spoiler drag
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):

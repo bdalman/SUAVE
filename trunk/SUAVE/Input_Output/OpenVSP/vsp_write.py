@@ -199,7 +199,8 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     root_chord = wing.chords.root
     tip_chord  = wing.chords.tip
     sweep      = wing.sweeps.quarter_chord / Units.deg
-    sweep_loc  = 0.25
+    sweep_loc  = 0.
+    print('Sweep location is set to LE')
     root_twist = wing.twists.root / Units.deg
     tip_twist  = wing.twists.tip  / Units.deg
     root_tc    = wing.thickness_to_chord 

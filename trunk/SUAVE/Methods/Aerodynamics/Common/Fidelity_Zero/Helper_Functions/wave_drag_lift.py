@@ -45,7 +45,7 @@ def wave_drag_lift(conditions,configuration,wing):
     Sref = wing.areas.reference
     
     # Conditions
-    Mc  = freestream.mach_number * 1.0
+    Mc  = freestream.mach_number * 1.0          # Why times 1?? -Ben
 
     # Length-wise aspect ratio
     ARL = total_length**2/Sref

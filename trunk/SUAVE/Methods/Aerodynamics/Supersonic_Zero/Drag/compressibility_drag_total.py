@@ -61,6 +61,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
+    print('Warning: Propulsors off in Methods/Supersonic_Zero/Drag/compressibility_total') #Lines 156-164, 167 are off
     propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     propulsor      = geometry.propulsors[propulsor_name]
 
@@ -151,7 +152,8 @@ def compressibility_drag_total(state,settings,geometry):
     else:
         raise ValueError('Main fuselage does not have a total length')
 
-    # Propulsor wave drag	
+    # Propulsor wave drag
+    '''
     Dn                      = propulsor.nacelle_diameter
     Di                      = propulsor.inlet_diameter
     effective_area          = (Dn*Dn-Di*Di)/4.*np.pi
@@ -159,9 +161,11 @@ def compressibility_drag_total(state,settings,geometry):
     prop_wave               = wave_drag_body_of_rev(propulsor.engine_length,effective_radius,Sref_main)*propulsor.number_of_engines
     prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/(1.05-.99)
     prop_drag[mach >= 1.05] = prop_wave    
-    
+    '''
+
     drag_breakdown.compressible[main_fuselage.tag] = fuse_drag
-    drag_breakdown.compressible[propulsor.tag] = prop_drag
+    #drag_breakdown.compressible[propulsor.tag] = prop_drag
+    drag_breakdown.compressible[propulsor.tag] = 0.0
 
     # Dump total comp drag
     total_compressibility_drag = 0.0

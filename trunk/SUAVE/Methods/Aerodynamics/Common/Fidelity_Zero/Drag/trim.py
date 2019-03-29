@@ -34,6 +34,7 @@ def trim(state,settings,geometry):
     configuration = settings
     
     trim_correction_factor  = configuration.trim_drag_correction_factor    
+
     untrimmed_drag          = conditions.aerodynamics.drag_breakdown.untrimmed
     
     # trim correction
