@@ -50,7 +50,7 @@ class Process(ContainerOrdered):
             """        
         
         results = Data()
-        
+
         if self.verbose:
             print('process start')
         
@@ -59,7 +59,7 @@ class Process(ContainerOrdered):
             if self.verbose:
                 print('step :' , tag)
             
-            #if not callable(step): continue
+            if not callable(step): continue
             
             if hasattr(step,'evaluate'): 
                 result = step.evaluate(*args,**kwarg)

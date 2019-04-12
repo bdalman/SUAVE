@@ -40,10 +40,10 @@ def vertical_tail_planform_raymer(vertical_stabilizer, wing,  l_vt,c_vt):
     Properties Used:
     N/A
     """           
-
+    #print('Entered Raymer!')
     vertical_stabilizer.areas.reference = wing.spans.projected*c_vt*wing.areas.reference/l_vt
   
-    wing_planform(vertical_stabilizer)
+    vertical_stabilizer = wing_planform(vertical_stabilizer)
     
-    return 0
+    return vertical_stabilizer
     

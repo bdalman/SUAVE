@@ -79,7 +79,7 @@ def unpack_unknowns(segment):
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
-    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
+    """ On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
 
         Assumptions:
         Works with a segment discretized in vertical position, altitude
@@ -106,7 +106,7 @@ def update_differentials(segment):
     r    = segment.state.conditions.frames.inertial.position_vector
     v    = segment.state.conditions.frames.inertial.velocity_vector
     alt0 = segment.altitude_start
-    altf = segment.altitude_end    
+    altf = segment.altitude_end   
 
     dz = altf - alt0
     vz = -v[:,2,None] # maintain column array
@@ -119,9 +119,11 @@ def update_differentials(segment):
     D = D / dt
     I = I * dt
     
+
+
     # Calculate the altitudes
     alt = np.dot(I,vz) + segment.altitude_start
-    
+
     # pack
     t_initial                                       = segment.state.conditions.frames.inertial.time[0,0]
     numerics.time.control_points                    = x

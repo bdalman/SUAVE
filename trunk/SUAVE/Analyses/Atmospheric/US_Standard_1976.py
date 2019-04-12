@@ -104,6 +104,8 @@ class US_Standard_1976(Atmospheric):
         R         = gas.gas_specific_constant
         delta_isa = temperature_deviation
         
+        #print('Entered US std: ', zs)
+
         # check properties
         if not gas == Air():
             warn('US Standard Atmosphere not using Air fluid properties')

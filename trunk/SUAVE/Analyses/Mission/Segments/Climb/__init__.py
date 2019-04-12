@@ -19,3 +19,5 @@ from .Constant_EAS_Constant_Rate import Constant_EAS_Constant_Rate
 
 from .Optimized import Optimized
 from .Unknown_Throttle import Unknown_Throttle
+
+from .Constant_Stagnation_Pressure_Constant_Angle import Constant_Stagnation_Pressure_Constant_Angle

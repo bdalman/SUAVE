@@ -59,7 +59,7 @@ class Turbine(Energy_Component):
         self.inputs.stagnation_temperature     = 1.0
         self.inputs.stagnation_pressure        = 1.0
         self.inputs.fuel_to_air_ratio          = 1.0
-        print('Added default bypass_ratio to turbine, it doesnt seem to call it properly')
+        #print('Added default bypass_ratio to turbine, it doesnt seem to call it properly')
         #self.inputs.bypass_ratio               = 0.     #Added this, and next few lines
         #from SUAVE.Core import Data
         #self.inputs.fan                        = Data()

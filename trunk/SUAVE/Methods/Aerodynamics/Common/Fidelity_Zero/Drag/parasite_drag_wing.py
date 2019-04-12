@@ -102,7 +102,7 @@ def parasite_drag_wing(state,settings,geometry):
                 span_seg  = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )            
                 sweep_seg = wing.Segments[i_segs].sweeps.quarter_chord    
                 xtu       = wing.transition_x_upper
-                xtl       = wing.transition_x_lower      
+                xtl       = wing.transition_x_lower   
 
                 if i_segs == 0:
                     chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
@@ -207,9 +207,9 @@ def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     #print('Re for wing is: ', re, mac_w)
     Re_w = re*mac_w  
 
-    print('Hard coding in transition location wing!')
-    xtu = 0.999
-    xtl = 0.999
+    #print('Hard coding in transition location wing!')
+    #xtu = 0.999
+    #xtl = 0.999
     
     # skin friction  coefficient, upper
     cf_w_u, k_comp_u, k_reyn_u = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtu)

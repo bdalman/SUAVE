@@ -72,7 +72,7 @@ def parasite_total(state,settings,geometry):
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
     
     # from propulsors
-    print('Warning: Propulsor also turned off in parasite_total methods!')
+    #print('Warning: Propulsor also turned off in parasite_total methods!')
     '''
     for propulsor in propulsors.values():
         ref_area = propulsor.nacelle_diameter**2 / 4 * np.pi

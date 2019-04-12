@@ -61,7 +61,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
-    print('Warning: Propulsors off in Methods/Supersonic_Zero/Drag/compressibility_total') #Lines 156-164, 167 are off
+    #print('Warning: Propulsors off in Methods/Supersonic_Zero/Drag/compressibility_total') #Lines 156-164, 167 are off
     propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     propulsor      = geometry.propulsors[propulsor_name]
 

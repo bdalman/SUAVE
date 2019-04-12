@@ -12,18 +12,19 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def wing_planform(wing):
+def wing_planform_new(wing):
     """Computes standard wing planform values.
 
     Assumptions:
     Trapezoidal wing with no leading/trailing edge extensions
+    ***Modified to take span and calc SREF***
 
     Source:
     None
 
     Inputs:
     wing.
-      areas.reference          [m^2]
+      spans.projected          [m^2]
       taper                    [-]
       sweeps.quarter_chord     [radians]
       aspect_ratio             [-]
@@ -56,31 +57,42 @@ def wing_planform(wing):
     """      
     
     # unpack
-    sref        = wing.areas.reference
+    span        = wing.spans.projected
     taper       = wing.taper
-    sweep       = wing.sweeps.quarter_chord
+    sweep       = wing.sweeps.leading_edge
     ar          = wing.aspect_ratio
     t_c_w       = wing.thickness_to_chord
     dihedral    = wing.dihedral 
     vertical    = wing.vertical
     symmetric   = wing.symmetric
-    origin      = wing.origin
+    origin_x, orign_y, origin_z      = wing.origin
     #print('Entered wing_planform!')
     # calculate
-    span       = (ar*sref)**.5
+
+
+    sref       = (span**2)/ar
+    #span       = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
+
+
+    origin_x = 1.8 - chord_root
     
     swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
 
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
-    # calculate leading edge sweep
-    le_sweep = np.arctan( np.tan(sweep) - (4./ar)*(0.-0.25)*(1.-taper)/(1.+taper) )
-    
+    # Leftover from the preview file. Takes LE sweep as input
+    le_sweep = np.arctan((chord_root-chord_tip)/(span*0.5 ))
+    #le_sweep = sweep
+
+
+    # span efficency
+    e = 4.61 * (1-0.045 * ar**0.68)*np.cos(le_sweep)**0.15 -3.1  #Method from Raymer. Not valid for sweep < 30deg
+
     # estimating aerodynamic center coordinates
     y_coord = span / 6. * (( 1. + 2. * taper ) / (1. + taper))
-    x_coord = mac * 0.25 + y_coord * np.tan(le_sweep)
+    x_coord = mac * 0.25 + y_coord * np.tan(le_sweep) + origin_x
     z_coord = y_coord * np.tan(dihedral)
         
     if vertical:
@@ -116,36 +128,11 @@ def wing_planform(wing):
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
-    wing.spans.projected            = span
+    wing.areas.reference            = sref
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
+    wing.origin                     = [origin_x, orign_y, origin_z]
+    wing.sweeps.leading_edge        = le_sweep
+    wing.span_efficiency            = e
+
     
     return wing
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-
-    from SUAVE.Core import Data,Units
-    from SUAVE.Components.Wings import Wing
-        
-    #imports
-    wing = Wing()
-    
-    wing.areas.reference        =  10.
-    wing.taper                  =  0.50
-    wing.sweeps.quarter_chord   =  45.  * Units.deg
-    wing.aspect_ratio           =  10.
-    wing.thickness_to_chord     =  0.13
-    wing.dihedral               =  45.  * Units.deg
-    wing.vertical               =  1
-    wing.symmetric              =  0
-    
-    wing.flaps.chord = 0.28
-    wing.flaps.span_start = 0.50
-    wing.flaps.span_end   = 1.00
-
-    wing_planform(wing)
-    print(wing)

@@ -118,6 +118,7 @@ def update_weights(segment):
     conditions = segment.state.conditions
     m0         = conditions.weights.total_mass[0,0]
     mdot_fuel  = conditions.weights.vehicle_mass_rate
+    #mdot_fuel  = conditions.weights.vehicle_mass_rate * 1.71429         #Assuming it's currently capping at 0.035 and we want 0.06
     g          = conditions.freestream.gravity
     I          = segment.state.numerics.time.integrate
 

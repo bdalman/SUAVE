@@ -156,9 +156,6 @@ class Turbojet_Super(Propulsor):
 
         #get the bypass ratio from the thrust component
         high_pressure_turbine.inputs.bypass_ratio              = 0.0
-        print('Added a ton in Energy/Networks/Turbojet_Super around 160,182,&230')
-        high_pressure_turbine.inputs.fan                       = Data()         #Also added
-        high_pressure_turbine.inputs.fan.work_done             = 0.             #And this
 
         #link the high pressuer turbine to the high pressure compressor
         high_pressure_turbine.inputs.compressor                = high_pressure_compressor.outputs
@@ -178,10 +175,6 @@ class Turbojet_Super(Propulsor):
 
         #get the bypass ratio from the thrust component
         low_pressure_turbine.inputs.bypass_ratio               = 0.0
-
-
-        low_pressure_turbine.inputs.fan                       = Data()         #Also added
-        low_pressure_turbine.inputs.fan.work_done             = 0.             #And this
 
         #flow through the low pressure turbine
         low_pressure_turbine(conditions)
@@ -225,13 +218,6 @@ class Turbojet_Super(Propulsor):
         thrust.inputs.number_of_engines                        = number_of_engines
         thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
         thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation        
-
-
-        thrust.inputs.fan_nozzle                               = Data()
-        thrust.inputs.fan_nozzle.velocity                      = 0.
-        thrust.inputs.fan_nozzle.area_ratio                    = 0.
-        thrust.inputs.fan_nozzle.static_pressure               = 0.
-        thrust.inputs.bypass_ratio                             = 0.
 
         #compute the thrust
         thrust(conditions)
@@ -308,7 +294,7 @@ class Turbojet_Super(Propulsor):
         
         results.thrust_force_vector = results.thrust_force_vector/self.number_of_engines*(self.number_of_engines-1)
         results.vehicle_mass_rate   = results.vehicle_mass_rate/self.number_of_engines*(self.number_of_engines-1)
-    
+
         return results        
 
     __call__ = evaluate_thrust

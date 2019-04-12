@@ -42,9 +42,13 @@ def initialize_differentials_dimensionless(segment):
     numerics = segment.state.numerics
     N                     = numerics.number_control_points
     discretization_method = numerics.discretization_method
+
+    #print(N, numerics)
     
     # get operators
     x,D,I = discretization_method(N,**numerics)
+
+    #print('After :', x, D, I)
     x = atleast_2d_col(x)
     
     # pack

@@ -54,7 +54,7 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     
     Rex = Re*xt
 
-    print('Commented weird line in compressible_mixed_flat_plate for re!')
+    # Not sure what this line does, except break on calls to this function
     #Rex[Rex==0.0] = 0.0001
 
     theta = 0.671*xt/(Rex**0.5)

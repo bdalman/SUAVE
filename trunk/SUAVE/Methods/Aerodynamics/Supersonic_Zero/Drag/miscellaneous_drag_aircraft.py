@@ -63,7 +63,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     # TODO: do this correctly
     total_gap_drag = 0.000
 
-    print('Warning: Nacelle Misc drag and fuselage_upsweep off - SZ_Misc_drag methods')
+    #print('Warning: Nacelle Misc drag and fuselage_upsweep off - SZ_Misc_drag methods')
     # ------------------------------------------------------------------
     #   Nacelle base drag
     # ------------------------------------------------------------------

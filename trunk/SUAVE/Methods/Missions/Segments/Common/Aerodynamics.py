@@ -51,7 +51,7 @@ def update_atmosphere(segment):
         Inputs:
             state.conditions:
                 freestream.altitude    [meters]
-            segment.analyses.atmoshere [Function]
+            segment.analyses.atmosphere [Function]
             
         Outputs:
             state.conditions:
@@ -72,9 +72,10 @@ def update_atmosphere(segment):
     temperature_deviation = segment.temperature_deviation
     atmosphere            = segment.analyses.atmosphere
     
+    #print(atmosphere, h, temperature_deviation)
     # compute
     atmo_data = atmosphere.compute_values(h,temperature_deviation)
-    
+    #print(atmo_data)
     # pack
     conditions.freestream.pressure          = atmo_data.pressure
     conditions.freestream.temperature       = atmo_data.temperature
@@ -133,9 +134,9 @@ def update_freestream(segment):
     # Reynolds number
     Re = rho * Vmag / mu  # per m
 
-    print('Overiding Re calc in Methods-Missions-Segments-Common-Aerodynamics!')
+    #print('Overiding Re calc in Methods-Missions-Segments-Common-Aerodynamics!')
 
-    Re = 5.017e6       # This freestream will set our fuse to ~750,000
+    #Re = 5.017e6       # This freestream will set our fuse to ~750,000
 
     # pack
     conditions.freestream.velocity         = Vmag

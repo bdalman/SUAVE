@@ -7,3 +7,5 @@ from . import fuselage
 from . import prop
 from . import wing
 from . import wiring
+
+from . import uav_buildup
