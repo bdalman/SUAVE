@@ -360,7 +360,7 @@ def update_forces(segment):
     # sum of the forces
     F = L + D + T + W
     # like a boss
-
+    #print('Forces: ', wind_drag_force_vector)
     # pack
     conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
 

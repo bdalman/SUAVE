@@ -80,4 +80,5 @@ def induced_drag_aircraft(state,settings,geometry):
     except:
         print("Drag Polar Mode")     
     
+
     return total_induced_drag

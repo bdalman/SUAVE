@@ -49,6 +49,9 @@ def initialize_conditions(segment):
     z_accel    = segment.z_accel
     conditions = segment.state.conditions 
     
+    #print('Printing Initials!: ', alt, air_speed, x_accel, z_accel)
+    #print(segment.analyses.aerodynamics.tag)
+
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')

@@ -64,14 +64,14 @@ def write_optimization_outputs(nexus, filename):
     
     
     file=open(filename, 'a')
-    file.write('iteration = ')
+    file.write('iteration=,')
     file.write(str(nexus.total_number_of_iterations))
-    file.write(' , ')
-    file.write('objective = ')
+    file.write(',')
+    file.write('objective =,')
     file.write(str(scaled_objective[0]))
-    file.write(', inputs = ')
+    file.write(',inputs=,')
     file.write(str(problem_inputs))
-    file.write(', constraints = ')
+    file.write(',constraints=,')
     file.write(str(problem_constraints))
     
     file.write('\n') 

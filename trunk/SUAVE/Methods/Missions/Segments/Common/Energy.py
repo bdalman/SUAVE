@@ -75,7 +75,7 @@ def update_thrust(segment):
 
     # evaluate
     results   = energy_model.evaluate_thrust(segment.state)
-
+    #print('Thrust is: ', results.thrust_force_vector)
     # pack conditions
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector

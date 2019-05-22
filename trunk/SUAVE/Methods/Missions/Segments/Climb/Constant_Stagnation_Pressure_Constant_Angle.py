@@ -61,6 +61,8 @@ def initialize_conditions_unpack_unknowns(segment):
     theta    = segment.state.unknowns.body_angle
     alts     = segment.state.unknowns.altitudes    
 
+    
+
     # Update freestream to get density
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
     rho = conditions.freestream.density[:,0]   

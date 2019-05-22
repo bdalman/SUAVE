@@ -54,7 +54,6 @@ def compressibility_drag_total(state,settings,geometry):
     Properties Used:
     N/A
     """     
-
     # Unpack
     conditions    = state.conditions
     configuration = settings

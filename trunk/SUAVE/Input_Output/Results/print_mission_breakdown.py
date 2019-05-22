@@ -135,7 +135,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         if i == 0:  #Write header
             if imperial:
                 fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
-                fid.write( '                                | From  |   To  |Initial | Final  |         |       |        |Inicial| Final |Inicial| Final |\n')
+                fid.write( '                                | From  |   To  |Initial | Final  |         |       |        |Initial| Final |Inicial| Final |\n')
                 fid.write( '                                |   ft  |   ft  |   kg   |   kg   |    nm   |  min  |   kg   | KCAS  | KCAS  |  Mach |  Mach |\n')
                 fid.write( '                                |       |       |        |        |         |       |        |       |       |       |       |\n')
             elif SI:

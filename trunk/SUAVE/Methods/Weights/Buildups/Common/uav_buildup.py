@@ -20,7 +20,7 @@ from SUAVE.Attributes.Solids import (
 
 ## @ingroup Methods-Weights-Buildups-Common
 def uav_buildup(vehicle,
-         max_thrust):
+         max_thrust, max_speed):
     
     """weight = SUAVE.Methods.Weights.Buildups.Common.wing(
             wing,
@@ -81,13 +81,27 @@ def uav_buildup(vehicle,
     MTOW                        = vehicle.mass_properties.max_takeoff
     
     wingArea                    = vehicle.wings['main_wing'].areas.wetted
-    fuelVol                     = vehicle.wings['main_wing'].fuel_volume
+    wingRefArea                 = vehicle.wings['main_wing'].areas.reference
+    mach                        = max_speed
+    wingAR                      = vehicle.wings['main_wing'].aspect_ratio
+    fuelVolWing                 = vehicle.wings['main_wing'].fuel_volume
+    fuelVolFuse                 = vehicle.fuselages['fuselage'].fuel_volume
     tailArea                    = vehicle.wings['vertical_stabilizer'].areas.wetted
+
+
+    fuelVol                     = fuelVolWing + fuelVolFuse
+
+
+
+    #print('Fuel Vol Updated: ', fuelVol, fuelVolFuse, fuelVolWing)
 
     fuseArea                    = vehicle.fuselages['fuselage'].areas.wetted
     thrust                      = max_thrust
 
-    #print('Printing mass stuff: ', wingArea, tailArea, fuseArea, fuelVol)
+
+    totalArea                   = wingArea + tailArea + fuseArea
+
+    print('Printing mass stuff: ', wingArea, tailArea, fuseArea, fuelVol)
 
 
 #-------------------------------------------------------------------------------
@@ -111,22 +125,29 @@ def uav_buildup(vehicle,
     # Calculate Wing Weight Based on wetted area
 
     wing_weight = wingArea * ALUM_DEN * 0.0047625            # Assumes plates of 3/16" thickness. Should add in factor for spar or bulkheads
+    #wing_weight = wingArea * 11.8689
+    #wing_weight = wingArea * -21.8708
 
     # Calculate fuselage mass from wetted area. This also assumes aluminum plates, but isn't quite as realistic
 
-    fuse_weight = fuseArea * 0.003175 * ALUM_DEN            # Assumes plates of 1/8" thickness. How we make a fuse out of solid plates sounds like Will's problem not mine :)
+    #fuse_weight = fuseArea * 0.003175 * ALUM_DEN          # Assumes plates of 1/8" thickness. How we make a fuse out of solid plates sounds like Will's problem not mine :)
+    fuse_weight = fuseArea * 0.00635 * ALUM_DEN  
+    #fuse_weight = fuseArea * -12.3299   
+    #fuse_weight = fuseArea * 70.4091       
 
     # Vertical tail weight
 
-    tail_weight = tailArea * 0.003175 * ALUM_DEN             # Assumes 1/8" again.
+    tail_weight = tailArea * 0.003175 * ALUM_DEN           # Assumes 1/8" again.
+    #tail_weight = tailArea * 149.2303
+    #tail_weight = tailArea * -90.5178
 
     # Propulsion weight. Based off turbojet table, and linear slope of thrust vs. weight.
 
-    prop_weight = 0.014 * thrust - 1.2374                   # [kg] Eqn from linear fit to 
+    prop_weight = 0.014 * thrust - 1.2374               # [kg] Eqn from linear fit to turbojets. Thrust in N
 
     # Mass of the fuel (assuming kerosene), given all the wing space contains fuel
 
-    fuel_weight = fuelVol * 810                             # [kg] Based on kerosene density in kg/m^3
+    fuel_weight = fuelVol * 810                            # [kg] Based on kerosene density in kg/m^3
 
     # Mass of the electronics
 
@@ -136,14 +157,36 @@ def uav_buildup(vehicle,
 
     # Mass of available payload
 
-    payload_weight = MTOW - (wing_weight + fuse_weight + tail_weight + prop_weight + fuel_weight)
+    W_af = 7.4955 * (totalArea**1.2707) * (mach * (1/0.98)**0.48)
+    #W_af = 0.8247 * (totalArea**1.3756) * (mach**0.4721)
 
 
+    payload_weight = MTOW - (W_af + fuel_weight + prop_weight)
+
+    #print('WARNING: Weight estimates are tripled to test L/D result!')
     # Now start to pack up properties
-
+    '''
     vehicle.mass_properties.max_zero_fuel   = wing_weight + fuse_weight + tail_weight + prop_weight # Weight with everything except fuel
     vehicle.mass_properties.cargo           = payload_weight
     vehicle.mass_properties.takeoff         = wing_weight + fuse_weight + tail_weight + prop_weight + fuel_weight    # Weight without any payload
     vehicle.mass_properties.operating_empty = wing_weight + fuse_weight + tail_weight + prop_weight + 0.02*fuse_weight           # No payload, no fuel
+    vehicle.mass_properties.wing_weight     = wing_weight
+    vehicle.mass_properties.fuselage_weight = fuse_weight
+    vehicle.mass_properties.tail_weight     = tail_weight
+    vehicle.mass_properties.propulsion_weight = prop_weight
+    vehicle.mass_properties.fuel_weight     = fuel_weight
+    '''
+
+    vehicle.mass_properties.max_zero_fuel   = W_af + prop_weight # Weight with everything except fuel
+    vehicle.mass_properties.cargo           = payload_weight
+    vehicle.mass_properties.takeoff         = W_af + prop_weight + fuel_weight    # Weight without any payload
+    vehicle.mass_properties.operating_empty = W_af + prop_weight + 0.02*0.4*W_af           # No payload, no fuel
+    vehicle.mass_properties.wing_weight     = wing_weight
+    vehicle.mass_properties.fuselage_weight = fuse_weight
+    vehicle.mass_properties.tail_weight     = tail_weight
+    vehicle.mass_properties.propulsion_weight = prop_weight
+    vehicle.mass_properties.fuel_weight     = fuel_weight
+
+    print('Printing TOW: ', vehicle.mass_properties.takeoff, prop_weight, fuel_weight)
 
     return vehicle

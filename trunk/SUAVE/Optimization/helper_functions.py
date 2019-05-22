@@ -140,7 +140,7 @@ def scale_input_values(inputs,x):
     Properties Used:
     N/A
     """    
-    
+    #print('Printing helper function scale_input_values: ', inputs, x)
     provided_scale = inputs[:,3]
     inputs[:,1] =  x*provided_scale
     

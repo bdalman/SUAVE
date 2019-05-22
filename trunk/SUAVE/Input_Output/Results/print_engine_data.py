@@ -3,6 +3,7 @@
 
 # Created:  SUAVE team
 # Modified: Aug 2016, L. Kulik
+# Modified: Apr 2019, B. Dalman to work with not just turbofans
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ import datetime  # importing library
 #  Print output file with compressibility drag
 # ----------------------------------------------------------------------
 ## @ingroup Input_Output-Results
-def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
+def print_engine_data(vehicle, turbofan_bool='FALSE', filename='engine_data.dat', units="imperial"):
     """This creates a file showing engine information.
 
     Assumptions:
@@ -78,12 +79,18 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     if engine_number == 0:
         raise ValueError("No engine found in the vehicle")
 
-
-    engine_tag = vehicle.propulsors.turbofan.tag
-    design_thrust = vehicle.propulsors.turbofan.design_thrust
-    engine_length = vehicle.propulsors.turbofan.engine_length
-    nacelle_diameter = vehicle.propulsors.turbofan.nacelle_diameter
-    bypass_ratio = vehicle.propulsors.turbofan.thrust.bypass_ratio
+    if turbofan_bool:
+        engine_tag = vehicle.propulsors.turbofan.tag
+        design_thrust = vehicle.propulsors.turbofan.design_thrust
+        engine_length = vehicle.propulsors.turbofan.engine_length
+        nacelle_diameter = vehicle.propulsors.turbofan.nacelle_diameter
+        bypass_ratio = vehicle.propulsors.turbofan.thrust.bypass_ratio
+    else:
+        engine_tag = vehicle.propulsors.turbojet.tag
+        design_thrust = vehicle.propulsors.turbojet.design_thrust
+        engine_length = vehicle.propulsors.turbojet.engine_length
+        nacelle_diameter = vehicle.propulsors.turbojet.nacelle_diameter
+        #bypass_ratio = vehicle.propulsors.turbojet.thrust.bypass_ratio
 
     # Considering planet and atmosphere of 1st mission segment
     sea_level_gravity = SUAVE.Attributes.Planets.Earth().sea_level_gravity
@@ -151,7 +158,10 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
                 state.conditions.freestream.pressure = np.array(np.atleast_1d(p))
                 state.conditions.propulsion.throttle = np.array(np.atleast_1d(1.))
 
-                results = vehicle.propulsors.turbofan(state)  # total thrust
+                if turbofan_bool:
+                    results = vehicle.propulsors.turbofan(state)  # total thrust
+                else:
+                    results = vehicle.propulsors.turbojet(state)  # total thrust 
                 thrust[idx] = results.thrust_force_vector[0, 0]
                 mdot[idx] = results.vehicle_mass_rate[0, 0]
 

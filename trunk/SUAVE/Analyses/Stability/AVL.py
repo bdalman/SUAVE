@@ -221,6 +221,7 @@ class AVL(Stability):
         mac                 = geometry.wings['main_wing'].chords.mean_aerodynamic        
         mach                = conditions.freestream.mach_number
         AoA                 = conditions.aerodynamics.angle_of_attack
+        #print('AOA are: ', AoA)
         
         moment_model        = surrogates.moment_coefficient
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
@@ -242,7 +243,8 @@ class AVL(Stability):
         Cn_beta             = np.zeros([data_len,1])
         NP                  = np.zeros([data_len,1]) 
 
-        for ii,_ in enumerate(AoA):           
+        for ii,_ in enumerate(AoA): 
+            #print(ii)          
             CM[ii]          = moment_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cm_alpha[ii]    = Cm_alpha_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cn_beta[ii]     = Cn_beta_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
@@ -481,6 +483,8 @@ class AVL(Stability):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
+
+        #print('The batch template is: ', run_folder)
         
         # rename default avl aircraft tag
         self.settings.filenames.features = self.geometry._base.tag + '.avl'

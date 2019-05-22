@@ -407,16 +407,19 @@ class Nexus(Data):
         """         
         
         # Run the problem just in case
-        self.evaluate(x)
+        #self.evaluate(x)
+
+        #print('Printing translate inputs:', x)
         
         # Pull out the inputs and print them
         inpu       = self.optimization_problem.inputs
         print('Design Variable Table:\n')
         print(inpu)
         
+        '''
         # Pull out the constraints
         const       = self.optimization_problem.constraints
-        const_vals  = self.all_constraints(x)
+        const_vals  = self.all_constraints(const)
         const_scale = help_fun.unscale_const_values(const,const_vals)
         
         # Make a new table
@@ -425,8 +428,8 @@ class Nexus(Data):
 
         print('\nConstraint Table:\n')
         print(const_table)
-        
-        return inpu,const_table
+        '''
+        return inpu #,const_table
                                
         
     

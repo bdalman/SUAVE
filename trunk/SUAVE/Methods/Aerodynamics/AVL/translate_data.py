@@ -43,6 +43,7 @@ def translate_conditions_to_cases(avl,conditions):
     for i in range(len(conditions.aerodynamics.angle_of_attack)):      
         case = Run_Case()
         case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
+        #print('Case tag is:', case.tag)
         case.mass = conditions.weights.total_mass
         case.conditions.freestream.mach     = conditions.freestream.mach_number
         case.conditions.freestream.density  = conditions.freestream.density
@@ -193,7 +194,8 @@ def translate_results_to_conditions(cases,results):
 
     res.expand_rows(len(cases))
 
-    mach_case = list(results.keys())[0][5:8]   
+    mach_case = list(results.keys())[0][5:10]   
+
     for i in range(len(results.keys())):
         aoa_case = '{:02d}'.format(i+1)
         tag = 'case_' + mach_case + '_' + aoa_case

@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -108,7 +109,16 @@ def wing_planform(wing):
         flap_chord_start = wing_chord_flap_start * flap.chord
         flap_chord_end   = wing_chord_flap_end * flap.chord
         flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.    
-        affected_area    = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
+        affected_area    = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.         
+
+    # Nore calculate rough CG estimate. This was written with the v_tail in mind
+    wing_x_cg = 0   # These are all relative to the wing
+    wing_y_cg = 0
+    wing_z_cg = 0
+    sweep_dist = span * np.tan(le_sweep)
+    if vertical:
+        wing_x_cg = (2*chord_tip*sweep_dist + chord_tip**2 + sweep_dist*chord_root + chord_root*chord_tip + chord_root**2)/(3*(chord_root+chord_tip)) 
+        wing_z_cg = span * (2*chord_tip + chord_root)/(3*(chord_root+chord_tip))
         
     # update
     wing.chords.root                = chord_root
@@ -118,7 +128,9 @@ def wing_planform(wing):
     wing.areas.affected             = affected_area
     wing.spans.projected            = span
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
-    
+    wing.mass_properties            = Data()
+    wing.mass_properties.center_of_gravity = [wing_x_cg, wing_y_cg, wing_z_cg]
+
     return wing
 
 

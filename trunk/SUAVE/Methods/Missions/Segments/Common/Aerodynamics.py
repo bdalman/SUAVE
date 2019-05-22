@@ -35,6 +35,8 @@ def update_altitude(segment):
     """    
     altitude = -segment.state.conditions.frames.inertial.position_vector[:,2]
     segment.state.conditions.freestream.altitude[:,0] = altitude
+
+    #print('Altitude', altitude)
     
 
 # ----------------------------------------------------------------------
@@ -70,6 +72,7 @@ def update_atmosphere(segment):
     conditions            = segment.state.conditions
     h                     = conditions.freestream.altitude
     temperature_deviation = segment.temperature_deviation
+    #print('Atmosphere: ', segment.analyses)
     atmosphere            = segment.analyses.atmosphere
     
     #print(atmosphere, h, temperature_deviation)
@@ -135,7 +138,7 @@ def update_freestream(segment):
     Re = rho * Vmag / mu  # per m
 
     #print('Overiding Re calc in Methods-Missions-Segments-Common-Aerodynamics!')
-
+    #print(Vmag, M, Re, q)
     #Re = 5.017e6       # This freestream will set our fuse to ~750,000
 
     # pack
@@ -184,6 +187,7 @@ def update_aerodynamics(segment):
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
+    #print('Calling aero model')
     results = aerodynamics_model( segment.state )    
     
     # unpack results
@@ -205,6 +209,7 @@ def update_aerodynamics(segment):
     L[:,2] = ( -CL * q * Sref )[:,0]
     D[:,0] = ( -CD * q * Sref )[:,0]
 
+    #print('Lift and drag coeffs:', CL, CD)
     results.lift_force_vector = L
     results.drag_force_vector = D    
 

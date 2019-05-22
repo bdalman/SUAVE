@@ -36,6 +36,7 @@ def expand_sub_segments(segment):
     """    
 
     last_tag = None
+
     
     for tag,sub_segment in segment.segments.items():
         

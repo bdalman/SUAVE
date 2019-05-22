@@ -113,6 +113,8 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
         control_gaps     = total_gap_drag            *ones_1col,
         total            = total_miscellaneous_drag  *ones_1col,
     )
+
+
        
     return total_miscellaneous_drag *ones_1col
     

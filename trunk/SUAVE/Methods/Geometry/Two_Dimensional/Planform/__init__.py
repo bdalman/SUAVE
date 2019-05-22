@@ -10,3 +10,4 @@ from .vertical_tail_planform_raymer import vertical_tail_planform_raymer
 from .wing_fuel_volume import wing_fuel_volume
 from .populate_control_sections import populate_control_sections
 from .wing_planform_new import wing_planform_new
+from .wing_planform_sections import wing_planform_sections

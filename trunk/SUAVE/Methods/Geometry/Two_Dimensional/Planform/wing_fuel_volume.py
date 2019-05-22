@@ -1,4 +1,4 @@
-## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
+## @ingroup Methods-Geometry-Two_Dimensional-Planform
 # wing_fuel_volume.py
 #
 # Created:  Apr 2014, T. Orra

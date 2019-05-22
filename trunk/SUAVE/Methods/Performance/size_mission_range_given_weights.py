@@ -45,6 +45,10 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
     #unpack
     masses = vehicle.mass_properties
 
+    wings_sweep = vehicle.wings['main_wing'].sweeps
+
+    #print(wings_sweep)
+
     OEW = masses.operating_empty
     if not OEW:
         print("Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined")
@@ -78,19 +82,23 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
             segmentNum = i
             break
-    print(mission.segments)
+    #print(mission.segments)
     TOW_ref = mission.segments[0].analyses.weights.mass_properties.takeoff 
-    
+
+    #print('TOW_Ref is :', TOW_ref, fuel, distance)
+
     # Loop for range calculation of each input case
     for id,TOW in enumerate(takeoff_weight):
         PLD     =  mission_payload[id]
         FUEL    =  TOW - OEW - PLD - reserve_fuel[id]
 
+        #print('FUEL is: ', FUEL, TOW, OEW, PLD, reserve_fuel[id])
         # Update mission takeoff weight
         vehicle.mass_properties.takeoff = TOW
         mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
+        print('About to evaluate weights mission')
         results = mission.evaluate()
         segment = results.segments[segmentNum]
 
@@ -100,7 +108,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         # have to iterate distance in order to have total fuel equal to target fuel
 
         maxIter  = 10    # maximum iteration limit
-        tol      = 1.    # fuel convergency tolerance
+        tol      = 1e-6   # fuel convergency tolerance
         residual = 9999. # residual to be minimized
         iter     = 0     # iteration count
 
@@ -109,7 +117,6 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
 
             # Current total fuel burned in mission
             TotalFuel  = TOW - results.segments[-1].conditions.weights.total_mass[-1]
-
             # Difference between burned fuel and target fuel
             missingFuel = FUEL - TotalFuel
 
@@ -129,6 +136,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
 
             # Difference between burned fuel and target fuel
             residual = ( TOW- results.segments[-1].conditions.weights.total_mass[-1] ) - FUEL
+            print('Iter!: ', iter, CruiseDist, DeltaDist, residual)
 
         # Allocating resulting range in ouput array.
         distance[id] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) #Distance [m]

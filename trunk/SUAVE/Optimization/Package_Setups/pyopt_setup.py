@@ -48,6 +48,14 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints
+
+    if solver == 'NSGA2':
+        max_gen= problem.optimization_problem.maxGen
+        pop_size = problem.optimization_problem.PopSize
+        random_seed = problem.optimization_problem.randomNumber
+    elif solver == 'ALPSO':
+        swarm = problem.optimization_problem.PopSize
+        OuterLoop = problem.optimization_problem.maxGen
    
     if FD == 'parallel':
         from mpi4py import MPI
@@ -129,7 +137,13 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt = pyOpt.pyNLPQL.NLPQL()    
     elif solver == 'NSGA2':
         import pyOpt.pyNSGA2
-        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA') 
+        #opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')
+        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA', disp_opts='True', store_hst='True', hot_start='True') 
+        #opt = pyOpt.NSGA2._on_setOption('maxGen', max_gen)
+        #opt = setOption('PopSize', PopSize)
+        opt.setOption('maxGen', max_gen)
+        opt.setOption('PopSize', pop_size)
+        opt.setOption('seed', random_seed) 
     elif solver == 'MIDACO':
         import pyOpt.pyMIDACO
         opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
@@ -137,16 +151,22 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         import pyOpt.pyALPSO
         #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
         opt = pyOpt.pyALPSO.ALPSO()
+        opt.setOption('SwarmSize', swarm)
+        opt.setOption('maxOuterIter', OuterLoop)
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
+        #outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        print('Entered the parallel option', opt_prob)
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)
   
     else:
-        outputs = opt(opt_prob)        
+        outputs = opt(opt_prob) 
+
+    print('Printing outputs!!:', outputs)       
    
     return outputs
 
@@ -182,7 +202,8 @@ def PyOpt_Problem(problem,x):
    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
-    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+
+    fail  = np.array(np.isnan(obj.tolist()).any() or np.isnan(np.array(const).any())).astype(int)
 
        
     print('Inputs')

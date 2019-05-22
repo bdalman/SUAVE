@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from .wing_planform_sections import wing_planform_sections
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -55,6 +56,12 @@ def wing_planform_new(wing):
     Properties Used:
     N/A
     """      
+
+    if len(wing.Segments) > 2:
+        wing = wing_planform_sections(wing)
+        return wing
+
+
     
     # unpack
     span        = wing.spans.projected
@@ -65,7 +72,7 @@ def wing_planform_new(wing):
     dihedral    = wing.dihedral 
     vertical    = wing.vertical
     symmetric   = wing.symmetric
-    origin_x, orign_y, origin_z      = wing.origin
+    origin_x, origin_y, origin_z      = wing.origin
     #print('Entered wing_planform!')
     # calculate
 
@@ -76,16 +83,20 @@ def wing_planform_new(wing):
     chord_tip  = taper * chord_root
 
 
-    origin_x = 1.8 - chord_root
+    #origin_x = 1.8 - chord_root
     
     swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
 
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
     # Leftover from the preview file. Takes LE sweep as input
-    le_sweep = np.arctan((chord_root-chord_tip)/(span*0.5 ))
-    #le_sweep = sweep
+    #le_sweep = np.arctan((chord_root-chord_tip)/(span*0.5 ))
+    le_sweep = sweep
 
+
+    half_chord_sweep = np.arctan(np.tan(le_sweep) - (4./ar)*(0.5-0.)*(1.-taper)/(1.+taper) ) # For calculating total length
+
+    length = ((span*0.5) / np.cos(half_chord_sweep)) * 2
 
     # span efficency
     e = 4.61 * (1-0.045 * ar**0.68)*np.cos(le_sweep)**0.15 -3.1  #Method from Raymer. Not valid for sweep < 30deg
@@ -94,7 +105,7 @@ def wing_planform_new(wing):
     y_coord = span / 6. * (( 1. + 2. * taper ) / (1. + taper))
     x_coord = mac * 0.25 + y_coord * np.tan(le_sweep) + origin_x
     z_coord = y_coord * np.tan(dihedral)
-        
+
     if vertical:
         temp    = y_coord * 1.
         y_coord = z_coord * 1.
@@ -130,9 +141,11 @@ def wing_planform_new(wing):
     wing.areas.affected             = affected_area
     wing.areas.reference            = sref
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
-    wing.origin                     = [origin_x, orign_y, origin_z]
+    wing.origin                     = [origin_x, origin_y, origin_z]
     wing.sweeps.leading_edge        = le_sweep
     wing.span_efficiency            = e
+    wing.total_length               = length
+
 
     
     return wing

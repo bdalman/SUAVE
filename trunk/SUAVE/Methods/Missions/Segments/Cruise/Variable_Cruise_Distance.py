@@ -30,6 +30,7 @@ def initialize_cruise_distance(segment):
     
     # unpack
     cruise_tag = segment.cruise_tag
+    #print(segment)
     distance   = segment.segments[cruise_tag].distance
     
     # apply, make a good first guess

@@ -47,6 +47,11 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints
+
+    if solver == 'NSGA2':
+        max_gen= problem.optimization_problem.maxGen
+        pop_size = problem.optimization_problem.PopSize
+        random_seed = problem.optimization_problem.randomNumber
    
     if FD == 'parallel':
         from mpi4py import MPI
@@ -56,7 +61,7 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     # Instantiate the problem and set objective
 
     try:
-        import pyoptsparse as pyOpt
+        import pyoptsparse.pyoptsparse as pyOpt
     except:
         raise ImportError('No version of pyOptsparse found')
         
@@ -99,7 +104,8 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
             opt_prob.addCon(name, lower=edge,upper=edge)
 
     # Finalize problem statement and run  
-    print(opt_prob)
+    #print('Printing problem!!!!', opt_prob)
+    #print('Done printing@@')
    
     if solver == 'SNOPT':
         opt = pyOpt.SNOPT()
@@ -118,7 +124,16 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         opt = pyOpt.PSQP()  
         
     elif solver == 'NSGA2':
-        opt = pyOpt.NSGA2(pll_type='POA') 
+        #print('Entered NSGA-II in solver script')
+        opt = pyOpt.NSGA2(pll_type='POA', disp_opts='True', storeHistory='NSGA2_history')#, hot_start='True') 
+        #opt = pyOpt.NSGA2._on_setOption('maxGen', max_gen)
+        #opt = setOption('PopSize', PopSize)
+        opt.setOption('maxGen', max_gen)
+        opt.setOption('PopSize', pop_size)
+        opt.setOption('seed', random_seed)
+        opt.setOption('PrintOut', 2)
+        #print('Got through that part')
+        
     
     elif solver == 'ALPSO':
         #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
@@ -139,13 +154,18 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
-        outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        print('Entered the parallel option', opt_prob)
+        outputs = opt(opt_prob, sens='FD',sensMode='pgc')        # Changed this line to enable parallel based on forum post for pyOptSparse
+        #print('Leaving the paralled option')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         outputs = opt(opt_prob, sens='FD', sensStep = sense_step)
   
     else:
         outputs = opt(opt_prob)        
+
+    print('Printing outputs!!:', outputs)
+    #print(opt_prob.solution(0))
    
     return outputs
 
@@ -187,7 +207,7 @@ def PyOpt_Problem(problem,xdict):
    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
-    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+    fail  = np.array(np.isnan(obj.tolist()).any() or np.isnan(np.array(const).any())).astype(int)
     
     funcs = {}
     
