@@ -282,6 +282,11 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     # Note this will fail silently if airfoil is not in correct format
     # check geometry output
 
+    #print(wing.Segments.section_2.Airfoil.airfoil.coordinate_file)
+    #print(len(wing.Segments))
+
+    i = 0
+
     if n_segments==0:
         if len(wing.Airfoil) != 0:
             xsecsurf = vsp.GetXSecSurf(wing_id,0)
@@ -304,14 +309,20 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
             vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
             vsp.Update()
         elif len(wing.Segments[0].Airfoil) != 0:
+         
+            #Extra sections haven't actually been added yet, so set root airfoil, and set flag for latter
             xsecsurf = vsp.GetXSecSurf(wing_id,0)
             vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
             vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
             xsec1 = vsp.GetXSec(xsecsurf,0)
             xsec2 = vsp.GetXSec(xsecsurf,1)
-            vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
-            vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
-            vsp.Update()                
+
+            vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil.airfoil.coordinate_file) #The wing segments data structure is wonky
+
+            HAVE_MORE_AIRFOILS = True
+            
+            vsp.Update()
+               
 
     # Thickness to chords
     vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
@@ -405,6 +416,19 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
 
     vsp.Update() # to fix problems with chords not matching up
+
+    if HAVE_MORE_AIRFOILS:
+        for i in range(1,n_segments):
+            xsecsurf = vsp.GetXSecSurf(wing_id,0)   #Gets the wing surface tag, for the first wing (I think, haven't tested with multiple)
+            vsp.ChangeXSecShape(xsecsurf,i,vsp.XS_FILE_AIRFOIL) #Sets the segment to AF file input
+            xsec1 = vsp.GetXSec(xsecsurf,i)                     #Gets the section tag
+                    
+            vsp.ReadFileAirfoil(xsec1,wing.Segments[i].Airfoil.airfoil.coordinate_file) #The wing segments data structure is wonky. This writes the airfoil to the right section
+
+            vsp.Update()
+
+        HAVE_MORE_AIRFOILS = False # Turn off flag
+
     
     if 'Fuel_Tanks' in wing:
         for tank in wing.Fuel_Tanks:
