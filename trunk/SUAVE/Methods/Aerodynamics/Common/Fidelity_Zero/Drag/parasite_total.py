@@ -62,14 +62,19 @@ def parasite_total(state,settings,geometry):
         total_parasite_drag += parasite_drag * wing.areas.reference/vehicle_reference_area
  
     # from fuselage
+    #print('Tag', len(fuselages.fuselage.values()))
     for fuselage in fuselages.values():
-        if fuselage.tag == 'fuselage_bwb':
+        try:
+            if fuselage.tag == 'fuselage_bwb':
+                continue
+            parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
+            conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+            
+            fuse_holder = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+            total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+        except:
+            #print('No fuselage found!')
             continue
-        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
-        conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
-        
-        fuse_holder = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
-        total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
     
     # from propulsors
     #print('Warning: Propulsor also turned off in parasite_total methods!')

@@ -53,7 +53,16 @@ def parasite_drag_fuselage(state,settings,geometry):
     fuselage      = geometry
     
     freestream  = state.conditions.freestream
-    Sref        = fuselage.areas.front_projected
+    try:
+        Sref        = fuselage.areas.front_projected
+    except:
+        #print('No fuselage for parasite drag!')
+        fuselage_parasite_drag = 0
+        return fuselage_parasite_drag
+
+
+
+    
     Swet        = fuselage.areas.wetted
     
     l_fus  = fuselage.lengths.total

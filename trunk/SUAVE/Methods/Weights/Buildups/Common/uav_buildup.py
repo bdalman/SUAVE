@@ -157,8 +157,11 @@ def uav_buildup(vehicle,
 
     # Mass of available payload
 
-    W_af = 7.4955 * (totalArea**1.2707) * (mach * (1/0.98)**0.48)
+    #W_af = 7.4955 * (totalArea**1.2707) * (mach * (1/0.98)**0.48)
+    W_af = 5.907 * (totalArea**1.4907) * (mach)
     #W_af = 0.8247 * (totalArea**1.3756) * (mach**0.4721)
+
+    print('Weight params are: ', totalArea, mach, thrust, W_af, prop_weight)
 
 
     payload_weight = MTOW - (W_af + fuel_weight + prop_weight)

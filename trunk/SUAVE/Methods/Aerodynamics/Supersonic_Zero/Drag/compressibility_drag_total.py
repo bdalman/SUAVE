@@ -86,8 +86,14 @@ def compressibility_drag_total(state,settings,geometry):
 
 
         # Get main fuselage data - note that name of fuselage is important here
-        # This should be changed to be general 
-        main_fuselage = fuselages['fuselage']
+        # This should be changed to be general
+        if fuselages:
+            try: 
+                main_fuselage = fuselages['fuselage']
+            except:
+                main_fuselage = []
+        else:
+            main_fuselage = []
 
         # Get number of engines data
         num_engines = propulsor.number_of_engines
@@ -148,6 +154,10 @@ def compressibility_drag_total(state,settings,geometry):
         fuse_wave = wave_drag_body_of_rev(main_fuselage.lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
         fuse_drag[mach >= .99]  = fuse_wave*(mach[mach>=.99]-.99)/(1.05-.99)
         fuse_drag[mach >= 1.05] = fuse_wave
+    elif main_fuselage ==[]:
+        main_fuselage     = geometry.fuselages
+        main_fuselage.tag = 'fuselage'
+
     else:
         raise ValueError('Main fuselage does not have a total length')
 
@@ -183,6 +193,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown.compressible.total_volume = total_volume_wave_drag
     drag_breakdown.compressible.total_lift   = total_lift_wave_drag
 
+    #print('Fuse is: ', geometry.fuselages)
     return total_compressibility_drag
 
 

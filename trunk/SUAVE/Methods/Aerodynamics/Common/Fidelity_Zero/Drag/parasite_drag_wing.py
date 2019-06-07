@@ -65,7 +65,7 @@ def parasite_drag_wing(state,settings,geometry):
     # conditions
     Mc  = freestream.mach_number
     Tc  = freestream.temperature    
-    re  = freestream.reynolds_number     
+    re  = freestream.reynolds_number    
 
     
     wing = geometry
