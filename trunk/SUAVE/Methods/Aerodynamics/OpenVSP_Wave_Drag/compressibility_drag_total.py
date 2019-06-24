@@ -93,7 +93,9 @@ def compressibility_drag_total(state,settings,geometry):
 
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general 
-        main_fuselage = fuselages['fuselage']
+        
+        print('Warning: fuselage is turned off in VSP compressibility drag total')
+        #main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
         #num_engines = propulsor.number_of_engines
@@ -140,9 +142,13 @@ def compressibility_drag_total(state,settings,geometry):
     for k in wings.keys():
         wing = wings[k]    
         (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
-        cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a
-        mcc[Mc <= 0.99]  = b
-        MDiv[Mc <= 0.99] = c
+        #print(Mc.shape)
+        #print(cd_c.shape)
+        #print(a.shape)
+        print('More changes at line 148!')
+        cd_c[Mc <= 0.99] = np.float(cd_c[Mc <= 0.99] + a)
+        mcc[Mc <= 0.99]  = np.float(b)
+        MDiv[Mc <= 0.99] = np.float(c)
         drag_breakdown.compressible[wing.tag]    = Data()
         drag_breakdown.compressible[wing.tag].divergence_mach = MDiv
         cd_c_l = lift_wave_drag(conditions, 
