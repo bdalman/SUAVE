@@ -264,11 +264,15 @@ class SU2_inviscid_Super(Aerodynamics):
         import pyKriging
         
         # Gaussian Process New
-        regr_cl_sup = gaussian_process.GaussianProcess()
-        regr_cl_sub = gaussian_process.GaussianProcess()
+        #regr_cl_sup = gaussian_process.GaussianProcess()
+        #regr_cl_sub = gaussian_process.GaussianProcess()
+        gp_kernel_ES = ExpSineSquared(length_scale=1.0, periodicity=1.0, length_scale_bounds=(1e-5,1e5), periodicity_bounds=(1e-5,1e5))
+        regr_cl_sup = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cl_sub = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
         cl_surrogate_sup = regr_cl_sup.fit(xy[xy[:,1]>=1.], CL_data[xy[:,1]>=1.])
         cl_surrogate_sub = regr_cl_sub.fit(xy[xy[:,1]<=1.], CL_data[xy[:,1]<=1.])  
-        regr_cd = gaussian_process.GaussianProcess()
+        #regr_cd = gaussian_process.GaussianProcess()
+        regr_cd = gaussian_process.GaussianProcessRegressor(kernal=gp_kernel_ES)
         cd_surrogate = regr_cd.fit(xy, CD_data)        
         
         # Gaussian Process New
