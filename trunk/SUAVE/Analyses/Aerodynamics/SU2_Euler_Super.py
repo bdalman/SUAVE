@@ -145,5 +145,8 @@ class SU2_Euler_Super(Markup):
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()
+
+        self.process.compute.drag.untrimmed.geometry = self.geometry
+        self.process.compute.drag.untrimmed.initialize()
         
     finalize = initialize

@@ -137,7 +137,8 @@ class SU2_inviscid_Super(Aerodynamics):
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model_sub = surrogates.lift_coefficient_subsonic
         lift_model_sup = surrogates.lift_coefficient_supersonic
-        drag_model = surrogates.drag_coefficient
+        drag_model_sub = surrogates.drag_coefficient_subsonic
+        drag_model_sup = surrogates.drag_coefficient_supersonic
         
         # Inviscid lift
         data_len = len(AoA)
@@ -158,9 +159,9 @@ class SU2_inviscid_Super(Aerodynamics):
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             if mach[ii][0] <= 1.:
-                inviscid_drag[ii] = drag_model_sub.predict([AoA[ii][0],mach[ii][0]])
+                inviscid_drag[ii] = drag_model_sub.predict([np.array([AoA[ii][0],mach[ii][0]])])
             else:
-                inviscid_drag[ii] = drag_model_sup.predict([AoA[ii][0],mach[ii][0]])  
+                inviscid_drag[ii] = drag_model_sup.predict([np.array([AoA[ii][0],mach[ii][0]])])  
       
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
@@ -364,6 +365,15 @@ class SU2_inviscid_Super(Aerodynamics):
         cbar.ax.set_ylabel('Coefficient of Lift')
 
         # Stub for plotting drag if implemented:
+
+        fig = plt.figure('Coefficient of Drag Surrogate Plot')    
+        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        #plt.clabel(plt_handle, inline=1, fontsize=10)
+        cbar = plt.colorbar()
+        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
+        plt.xlabel('Angle of Attack (deg)')
+        plt.ylabel('Mach Number')
+        cbar.ax.set_ylabel('Coefficient of Drag')
 
         #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
         #plt.colorbar()
