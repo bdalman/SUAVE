@@ -26,6 +26,9 @@ from sklearn import gaussian_process
 from sklearn import neighbors
 from sklearn import svm
 
+from sklearn.gaussian_process.kernels import ExpSineSquared
+
+
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -141,18 +144,26 @@ class SU2_inviscid_Super(Aerodynamics):
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             if mach[ii][0] <= 1.:
-                inviscid_lift[ii] = lift_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
+                inviscid_lift[ii] = lift_model_sub.predict([np.array([AoA[ii][0],mach[ii][0]])])
             else:
-                inviscid_lift[ii] = lift_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
+                inviscid_lift[ii] = lift_model_sup.predict([np.array([AoA[ii][0],mach[ii][0]])])
+
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.main_wing = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag = np.zeros([data_len,1])
-        #for ii,_ in enumerate(AoA):
-        #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+        for ii,_ in enumerate(AoA):
+            if mach[ii][0] <= 1.:
+                inviscid_drag[ii] = drag_model_sub.predict([AoA[ii][0],mach[ii][0]])
+            else:
+                inviscid_drag[ii] = drag_model_sup.predict([AoA[ii][0],mach[ii][0]])  
+      
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
         
         return inviscid_lift, inviscid_drag
 
@@ -261,19 +272,26 @@ class SU2_inviscid_Super(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        import pyKriging
+        #import pyKriging
         
         # Gaussian Process New
         #regr_cl_sup = gaussian_process.GaussianProcess()
         #regr_cl_sub = gaussian_process.GaussianProcess()
+
         gp_kernel_ES = ExpSineSquared(length_scale=1.0, periodicity=1.0, length_scale_bounds=(1e-5,1e5), periodicity_bounds=(1e-5,1e5))
+
         regr_cl_sup = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
         regr_cl_sub = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cd_sup = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cd_sub = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+
         cl_surrogate_sup = regr_cl_sup.fit(xy[xy[:,1]>=1.], CL_data[xy[:,1]>=1.])
-        cl_surrogate_sub = regr_cl_sub.fit(xy[xy[:,1]<=1.], CL_data[xy[:,1]<=1.])  
+        cl_surrogate_sub = regr_cl_sub.fit(xy[xy[:,1]<=1.], CL_data[xy[:,1]<=1.])
+        cd_surrogate_sup = regr_cd_sup.fit(xy[xy[:,1]>=1.], CD_data[xy[:,1]>=1.])
+        cd_surrogate_sub = regr_cd_sub.fit(xy[xy[:,1]<=1.], CD_data[xy[:,1]<=1.])  
         #regr_cd = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcessRegressor(kernal=gp_kernel_ES)
-        cd_surrogate = regr_cd.fit(xy, CD_data)        
+        #regr_cd = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        #cd_surrogate = regr_cd.fit(xy, CD_data)        
         
         # Gaussian Process New
         #regr_cl = gaussian_process.GaussianProcessRegressor()
@@ -296,12 +314,29 @@ class SU2_inviscid_Super(Aerodynamics):
         
         self.surrogates.lift_coefficient_subsonic = cl_surrogate_sub
         self.surrogates.lift_coefficient_supersonic = cl_surrogate_sup
-        self.surrogates.drag_coefficient = cd_surrogate
+        self.surrogates.drag_coefficient_subsonic = cd_surrogate_sub
+        self.surrogates.drag_coefficient_supersonic = cd_surrogate_sup
+
+        # Resets plot to whatever your actual surrogate range is, plus 50% on either end
+        range_aoa = np.absolute(xy[0,0] - xy[-1,0]) * 1
+        range_mach = np.absolute(xy[0,1] - xy[-1,1]) * 1
+
+        low_aoa = (xy[0,0] - range_aoa) / Units.deg
+        high_aoa = (xy[-1,0] + range_aoa) / Units.deg
+
+        low_mach = xy[0,1] - range_mach
+        high_mach = xy[-1,1] + range_mach
+
+        
+
+        #New adaptive plotting 
+        AoA_points = np.linspace(low_aoa,high_aoa,100)*Units.deg
+        mach_points = np.linspace(low_mach,high_mach,100)     
          
         
         # Standard supersonic test case
-        AoA_points = np.linspace(-1.1,7.1,100)*Units.deg
-        mach_points = np.linspace(.2,2.05,100)      
+        #AoA_points = np.linspace(-1.1,7.1,100)*Units.deg
+        #mach_points = np.linspace(.2,2.05,100)      
         
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -311,10 +346,12 @@ class SU2_inviscid_Super(Aerodynamics):
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
                 if mach_mesh[ii,jj] >= 1. :
-                    CL_sur[ii,jj] = cl_surrogate_sup.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                    CL_sur[ii,jj] = cl_surrogate_sup.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
+                    CD_sur[ii,jj] = cd_surrogate_sup.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
                 else:
-                    CL_sur[ii,jj] = cl_surrogate_sub.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                    CL_sur[ii,jj] = cl_surrogate_sub.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
+                    CD_sur[ii,jj] = cd_surrogate_sub.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
+                #CD_sur[ii,jj] = cd_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
         
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    

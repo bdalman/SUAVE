@@ -86,6 +86,8 @@ class SU2_Euler_Super(Markup):
         
         # Do a traditional drag buildup
         compute.drag = Process()
+        
+        '''
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
         compute.drag.parasite                      = Process()
@@ -100,6 +102,9 @@ class SU2_Euler_Super(Markup):
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Common.Drag.untrimmed
+        '''
+        compute.drag.untrimmed                     = SU2_inviscid_Super()
+
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
