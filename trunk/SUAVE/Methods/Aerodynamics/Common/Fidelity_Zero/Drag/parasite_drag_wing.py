@@ -80,7 +80,7 @@ def parasite_drag_wing(state,settings,geometry):
     num_segments              = len(wing.Segments.keys())     
 
     #print('Overiding freestream Re in wings!')
-    #re = 0.75e6
+    re = 2e6
     #print(re)
     
     # if wing has segments, compute and sum parasite drag of each segment

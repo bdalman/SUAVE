@@ -86,7 +86,10 @@ def uav_buildup(vehicle,
     wingAR                      = vehicle.wings['main_wing'].aspect_ratio
     fuelVolWing                 = vehicle.wings['main_wing'].fuel_volume
     fuelVolFuse                 = vehicle.fuselages['fuselage'].fuel_volume
-    tailArea                    = vehicle.wings['vertical_stabilizer'].areas.wetted
+    try:                    #This block currently only catches one specific exception. Should re-write to be general
+        tailArea                = vehicle.wings['vertical_stabilizer'].areas.wetted
+    except:
+        tailArea                = vehicle.wings['v_tail'].areas.wetted
 
 
     fuelVol                     = fuelVolWing + fuelVolFuse

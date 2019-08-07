@@ -56,7 +56,10 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
         swet_tot += fuselage.areas.wetted
 
     for propulsor in geometry.propulsors:
-        swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+        try:
+            swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+        except:
+            continue
 
     swet_tot *= 1.10
     

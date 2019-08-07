@@ -1,8 +1,7 @@
 ## @ingroup Analyses-Aerodynamics
-# Supersonic_OpenVSP_Wave_Drag.py
+# OpenVSP_surrogate.py
 # 
-# Created:            T. MacDonald
-# Modified: Apr 2017, T. MacDonald
+# Created:   June 2019, B. Dalman
 
 
 # ----------------------------------------------------------------------
@@ -19,6 +18,8 @@ from .Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
+#from SUAVE.Methods.Aerodynamics.Surogate_Models import OpenVSP_surrogate
+from .OpenVSP_Surrogate_Class import OpenVSP_Surrogate_Class
 
 import numpy as np
 
@@ -26,7 +27,7 @@ import numpy as np
 #  Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
-class Supersonic_OpenVSP_Wave_Drag(Markup):
+class OpenVSP_Surrogate(Markup):
     """This is an analysis based on low-fidelity models.
 
     Assumptions:
@@ -53,7 +54,7 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         Properties Used:
         N/A
         """           
-        self.tag = 'Supersonic_OpenVSP_Wave_Drag'
+        self.tag = 'OpenVSP_Surrogate'
         
         # correction factors
         settings =  self.settings
@@ -67,40 +68,46 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.oswald_efficiency_factor           = None
         settings.spoiler_drag_increment             = 0.00      #Line added to calc spoiler drag
         settings.maximum_lift_coefficient           = np.inf
-        settings.number_slices                      = 20
-        settings.number_rotations                   = 30
+        #settings.number_slices                      = 20
+        #settings.number_rotations                   = 30
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 10
-        settings.number_panels_chordwise = 8
+        #settings.number_panels_spanwise = 10
+        #settings.number_panels_chordwise = 8
         
         
         # build the evaluation process
         compute = self.process.compute
         
         compute.lift = Process()
-        compute.lift.inviscid_wings                = Vortex_Lattice()
-        compute.lift.vortex                        = Methods.Lift.vortex_lift
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
-        compute.lift.fuselage                      = Common.Lift.fuselage_correction
+        #compute.lift.inviscid_wings                = Vortex_Lattice()
+        #compute.lift.inviscid                      = OpenVSP_Surrogate.compute_lift   #Write this function
+        compute.lift.inviscid                      = OpenVSP_Surrogate_Class()
+        #compute.lift.vortex                        = Methods.Lift.vortex_lift #Vortex lift off because it wants to separately account for CL
+        #compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
+        #compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
         compute.drag = Process()
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = VSP_Methods.compressibility_drag_total       
-        compute.drag.parasite                      = Process()
-        compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
-        compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        #print('Warning: Propulsor parasite drag turned off in Analyses_Supersonic_OpenVSP_Wave_Drag')
+        #compute.drag.compressibility               = Process()
+        #compute.drag.compressibility.total         = VSP_Methods.compressibility_drag_total       
+
+        #compute.drag.parasite                      = Process()
+
+        #compute.drag.parasite.wings                = Process_Geometry('wings')
+        #compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
+        #compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
+        #compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
+        print('Warning: Propulsor parasite drag turned off in Analyses_Supersonic_OpenVSP_Wave_Drag')
         #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
-        compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
-        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = Common.Drag.untrimmed
+
+        #compute.drag.parasite.total                = OpenVSP_surrogate.compute_drag
+        #compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        #compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
+        #compute.drag.untrimmed                     = Common.Drag.untrimmed
+        compute.drag.untrimmed                     = OpenVSP_Surrogate_Class()
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag    #Line added to calc spoiler drag
         compute.drag.total                         = Common.Drag.total_aircraft
@@ -132,7 +139,10 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         except:
             pass
         
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        self.process.compute.lift.inviscid.geometry = self.geometry
+        self.process.compute.lift.inviscid.initialize()
+
+        self.process.compute.drag.untrimmed.geometry = self.geometry
+        self.process.compute.drag.untrimmed.initialize()
         
     finalize = initialize        

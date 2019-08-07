@@ -49,16 +49,22 @@ def wing_compressibility(state,settings,geometry):
     AoA            = state.conditions.aerodynamics.angle_of_attack
     
     wings_lift = state.conditions.aerodynamics.lift_coefficient
+
+    sweep = geometry.wings['main_wing'].sweeps.leading_edge
     
     # compressibility correction
     compress_corr = np.array([[0.0]] * len(Mc))
-    compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
+    compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-(Mc[Mc < 0.95])**2.))
     compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment 
     compress_corr[Mc > 1.05] = 1./(np.sqrt(Mc[Mc > 1.05]**2.-1.))
 
-    # correct lift
-    wings_lift_comp = wings_lift * compress_corr  
+    #Wing sweep adjustment
     
+
+    # correct lift
+    #wings_lift_comp = wings_lift * compress_corr * np.cos(sweep)
+    wings_lift_comp = wings_lift * compress_corr
+    #print('Compres correction: ', wings_lift, compress_corr)
     state.conditions.aerodynamics.lift_breakdown.compressible_wings = wings_lift_comp
     state.conditions.aerodynamics.lift_coefficient= wings_lift_comp    
     

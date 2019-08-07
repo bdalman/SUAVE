@@ -145,10 +145,10 @@ def compressibility_drag_total(state,settings,geometry):
         #print(Mc.shape)
         #print(cd_c.shape)
         #print(a.shape)
-        print('More changes at line 148!')
-        cd_c[Mc <= 0.99] = np.float(cd_c[Mc <= 0.99] + a)
-        mcc[Mc <= 0.99]  = np.float(b)
-        MDiv[Mc <= 0.99] = np.float(c)
+        #print('More changes at line 148!')
+        cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a
+        mcc[Mc <= 0.99]  = b
+        MDiv[Mc <= 0.99] = c
         drag_breakdown.compressible[wing.tag]    = Data()
         drag_breakdown.compressible[wing.tag].divergence_mach = MDiv
         cd_c_l = lift_wave_drag(conditions, 

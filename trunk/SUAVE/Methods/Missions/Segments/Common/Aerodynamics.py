@@ -188,7 +188,9 @@ def update_aerodynamics(segment):
     
     # call aerodynamics model
     #print('Calling aero model')
-    results = aerodynamics_model( segment.state )    
+    results = aerodynamics_model( segment.state )  
+
+    #print('Results are: ', results)  
     
     # unpack results
     CL = results.lift.total

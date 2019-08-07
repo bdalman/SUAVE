@@ -54,8 +54,12 @@ def parasite_drag_propulsor(state,settings,geometry):
     configuration = settings
     
     propulsor = geometry
-    Sref      = propulsor.nacelle_diameter**2. / 4. * np.pi
-    Swet      = propulsor.areas.wetted
+    try:
+        Sref      = propulsor.nacelle_diameter**2. / 4. * np.pi
+        Swet      = propulsor.areas.wetted
+    except:
+        propulsor_parasite_drag = 0
+        return propulsor_parasite_drag
     
     l_prop = propulsor.engine_length
     d_prop = propulsor.nacelle_diameter
