@@ -287,6 +287,8 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
 
     i = 0
 
+    #HAVE_MORE_AIRFOILS = False     # TODO: This was a dirty fix. That I hope works. Should probably fix it later. Not sure why it decided to break now.
+
     if n_segments==0:
         if len(wing.Airfoil) != 0:
             xsecsurf = vsp.GetXSecSurf(wing_id,0)
