@@ -107,7 +107,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         # User don't have the option of run a mission for a given fuel. So, we
         # have to iterate distance in order to have total fuel equal to target fuel
 
-        maxIter  = 10    # maximum iteration limit
+        maxIter  = 4    # maximum iteration limit
         tol      = 1e-6   # fuel convergency tolerance
         residual = 9999. # residual to be minimized
         iter     = 0     # iteration count
@@ -138,8 +138,15 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             residual = ( TOW- results.segments[-1].conditions.weights.total_mass[-1] ) - FUEL
             print('Iter!: ', iter, CruiseDist, DeltaDist, residual)
 
+            if abs(residual)>1e6:
+                print('Segment seems to be unstable, exiting loop now!')
+                break
+
         # Allocating resulting range in ouput array.
-        distance[id] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) #Distance [m]
+        try:
+            distance[id] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) #Distance [m]
+        except:
+            distance[id] = -10000
         fuel[id] = FUEL
 
     mission.segments[0].analyses.weights.mass_properties.takeoff = TOW_ref

@@ -35,6 +35,12 @@ def write_geo_file(tag):
     
     filename = tag + '.geo'
     f = open(filename, mode='w')
+    
+    if tag[0]=='.':  #If passed in a file path, this will direct only to the location in the same folder
+        tag_list = tag.split('/')
+        tag = tag_list[-1]
+        #print('New tag for geo is: ', tag)
+
     f.write('Merge "' + tag + '.stl";\n')
     
     num_of_vehicle_nums = len(vehicle_nums) # Check how many surfaces are in the vehicle
@@ -70,6 +76,8 @@ def write_geo_file(tag):
         total_count += 1
     
     f.write('Volume(' + str(total_count) + ') = {' + surface_num_str + '};\n')
+
+    print('Volume # is: ', str(total_count), ' and srf # is: ', surface_num_str)
     f.close
     
 ## @ingroup Input_Output-GMSH

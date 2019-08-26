@@ -16,3 +16,4 @@ from .rayleigh import rayleigh
 from .nozzle_calculations import exit_Mach_shock, mach_area, normal_shock, pressure_ratio_isentropic, pressure_ratio_shock_in_nozzle
 from . import electric_motor_sizing
 from .liquid_rocket_sizing import liquid_rocket_sizing
+from .turbojet_small_sizing import turbojet_small_sizing

@@ -63,19 +63,19 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     # Moments are currently not recorded since no
     # reasonable reference length has been chosen
     
-    #CMx = float(final_state[4])
-    #CMy = float(final_state[5])
-    #CMz = float(final_state[6])   
+    CMx = float(final_state[4])
+    CMy = float(final_state[5])
+    CMz = float(final_state[6])   
     
-    #SU2_results.moment_coefficient_x = CMx
-    #SU2_results.moment_coefficient_y = CMy
-    #SU2_results.moment_coefficient_z = CMz
+    SU2_results.moment_coefficient_x = CMx
+    SU2_results.moment_coefficient_y = CMy
+    SU2_results.moment_coefficient_z = CMz
     
-    #print 'CMx:',CMx
-    #print 'CMy:',CMy
-    #print 'CMz:',CMz    
+    print('CMx:',CMx)
+    print('CMy:',CMy)
+    print('CMz:',CMz)    
             
-    return CL,CD
+    return CL,CD, CMy
 
 if __name__ == '__main__':
     call_SU2_CFD('cruise',parallel=True)

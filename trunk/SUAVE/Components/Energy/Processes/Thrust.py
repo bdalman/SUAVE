@@ -168,7 +168,6 @@ class Thrust(Energy_Component):
         SFC_adjustment       = self.SFC_adjustment
 
 
-
         #--------Cantwell method---------------------------------
 
         #computing the non dimensional thrust
@@ -181,6 +180,7 @@ class Thrust(Energy_Component):
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
         #Computing the specific impulse
+        #print('Printing Isp stuff: ', Fsp, a0, bypass_ratio, f, g)
         Isp              = Fsp*a0*(1.+bypass_ratio)/(f*g)
 
         #Computing the TSFC
@@ -352,7 +352,7 @@ class Thrust(Energy_Component):
         #unpack inputs
         a0                   = conditions.freestream.speed_of_sound
         throttle             = 1.0
-
+        
         #unpack from self
         bypass_ratio                = self.inputs.bypass_ratio
         Tref                        = self.reference_temperature
@@ -370,7 +370,7 @@ class Thrust(Energy_Component):
         Fsp                         = self.outputs.non_dimensional_thrust
 
         #compute dimensional mass flow rates
-        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
+        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  ## MDHC and mdot_core are set recursively with the compute function
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
 
         #pack outputs

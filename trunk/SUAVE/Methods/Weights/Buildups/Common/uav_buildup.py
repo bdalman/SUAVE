@@ -104,7 +104,7 @@ def uav_buildup(vehicle,
 
     totalArea                   = wingArea + tailArea + fuseArea
 
-    print('Printing mass stuff: ', wingArea, tailArea, fuseArea, fuelVol)
+    #print('Printing mass stuff: ', wingArea, tailArea, fuseArea, fuelVol)
 
 
 #-------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ def uav_buildup(vehicle,
     W_af = 5.907 * (totalArea**1.4907) * (mach)
     #W_af = 0.8247 * (totalArea**1.3756) * (mach**0.4721)
 
-    print('Weight params are: ', totalArea, mach, thrust, W_af, prop_weight)
+    #print('Weight params are: ', totalArea, mach, thrust, W_af, prop_weight)
 
 
     payload_weight = MTOW - (W_af + fuel_weight + prop_weight)
@@ -193,6 +193,6 @@ def uav_buildup(vehicle,
     vehicle.mass_properties.propulsion_weight = prop_weight
     vehicle.mass_properties.fuel_weight     = fuel_weight
 
-    print('Printing TOW: ', vehicle.mass_properties.takeoff, prop_weight, fuel_weight)
+    #print('Printing TOW: ', vehicle.mass_properties.takeoff, prop_weight, fuel_weight)
 
     return vehicle

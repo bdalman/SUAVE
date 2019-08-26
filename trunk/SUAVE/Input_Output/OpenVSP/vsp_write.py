@@ -192,15 +192,25 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     wing_x = wing.origin[0]    
     wing_y = wing.origin[1]
     wing_z = wing.origin[2]
+
     if wing.symmetric == True:
         span   = wing.spans.projected/2. # span of one side
     else:
         span   = wing.spans.projected
     root_chord = wing.chords.root
     tip_chord  = wing.chords.tip
-    sweep      = wing.sweeps.quarter_chord / Units.deg
-    sweep_loc  = 0.
-    print('Sweep location is set to LE')
+
+    SWEEP_LE_FLAG = False
+
+    if wing.Segments[0].sweeps.leading_edge != None and wing.Segments[0].sweeps.leading_edge != 0:
+        sweep      = wing.Segments[0].sweeps.leading_edge / Units.deg
+        sweep_loc  = 0.
+        SWEEP_LE_FLAG = True
+        print('Using LE sweep for VSP writing')
+    else:
+        sweep      = wing.Segments[0].sweeps.quarter_chord / Units.deg
+        sweep_loc  = 0.25
+        print('Using QC sweep for VSP writing')
     root_twist = wing.twists.root / Units.deg
     tip_twist  = wing.twists.tip  / Units.deg
     root_tc    = wing.thickness_to_chord 
@@ -287,7 +297,7 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
 
     i = 0
 
-    #HAVE_MORE_AIRFOILS = False     # TODO: This was a dirty fix. That I hope works. Should probably fix it later. Not sure why it decided to break now.
+    HAVE_MORE_AIRFOILS = False     # TODO: This was a dirty fix. That I hope works. Should probably fix it later. Not sure why it decided to break now.
 
     if n_segments==0:
         if len(wing.Airfoil) != 0:
@@ -370,7 +380,13 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
             no_twist_flag = False
         except:
             no_twist_flag = True
-        sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+
+        #SWEEP_LE_FLAG = False
+        if SWEEP_LE_FLAG:
+            sweep_i    = wing.Segments[i_segs-1].sweeps.leading_edge / Units.deg
+        else:
+            sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+
         tc_i       = wing.Segments[i_segs-1].thickness_to_chord
 
         # Calculate the local span

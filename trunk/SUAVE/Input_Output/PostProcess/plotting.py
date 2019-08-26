@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
 
-def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=None, save_location=None):
+def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=None, marker_flag=False, save_location=None):
 	""" Function that plots my data in whatever format is most appropriate
 
         Assumptions:
@@ -49,20 +49,34 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 
     # Define plot title
 
-	fig = plt.figure( plot_header, figsize=(8,6) )
+	#fig = plt.figure( plot_header, figsize=(8,6) )
+	fig = plt.figure( plot_header, figsize=(7,4) )
     # Define plot settings - font size, total plot size, etc
-	plt.rc('font', size=18)
+	#plt.rc('font', size=18)
 
 	# Actually plot now
-	if len(labels)>0:
+	if labels[0] != None:
 		for i in range(0, num_data_per_plot):
-			marker = pick_marker(i)
+			if marker_flag:
+				marker = marker_flag
+			else:
+				marker = pick_marker(i)
 			plt.plot(x[:,i], y[:,i], marker, label=str(labels[i]))
 		plt.legend(loc='best')
 	else:
-		for i in range(0, num_data_per_plot):
-			marker = pick_marker(i)
-			plt.plot(x[:,i], y[:,i], marker)
+		if num_data_per_plot==1:
+			if marker_flag:
+				marker = marker_flag
+			else:
+				marker = pick_marker(0)
+			plt.plot(x[:], y[:], marker)
+		else:
+			for i in range(0, num_data_per_plot):
+				if marker_flag:
+					marker = marker_flag
+				else:
+					marker = pick_marker(i)
+				plt.plot(x[:,i], y[:,i], marker)
 
 	plt.xlabel(x_label)
 	plt.ylabel(y_label)

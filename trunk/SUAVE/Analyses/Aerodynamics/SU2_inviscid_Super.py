@@ -79,6 +79,9 @@ class SU2_inviscid_Super(Aerodynamics):
         
         # Surrogate model
         self.surrogates = Data()
+
+        # Storage for passing things out that aren't explicetly lift or drag
+        self.storage   = Data()
  
         
     def initialize(self):
@@ -132,7 +135,9 @@ class SU2_inviscid_Super(Aerodynamics):
         # Unpack
         surrogates = self.surrogates        
         conditions = state.conditions
-        
+        x_ac       = self.storage.aerodynamic_center
+
+        vehicle_length = geometry.fuselages['fuselage'].lengths.total        
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model_sub = surrogates.lift_coefficient_subsonic
@@ -166,6 +171,8 @@ class SU2_inviscid_Super(Aerodynamics):
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
         
+        geometry.aerodynamic_center = x_ac * vehicle_length
+
         return inviscid_lift, inviscid_drag
 
 
@@ -202,6 +209,7 @@ class SU2_inviscid_Super(Aerodynamics):
         mach = training.Mach 
         CL   = np.zeros([len(AoA)*len(mach),1])
         CD   = np.zeros([len(AoA)*len(mach),1])
+        CM   = np.zeros([len(AoA)*len(mach),1])
 
         # Condition input, local, do not keep (k is used to avoid confusion)
         konditions              = Data()
@@ -221,7 +229,7 @@ class SU2_inviscid_Super(Aerodynamics):
                     konditions.aerodynamics.angle_of_attack = AoA[i]
                     konditions.aerodynamics.mach            = mach[j]
                     
-                    CL[count],CD[count] = call_SU2(konditions, settings, geometry)
+                    CL[count],CD[count], CM[count] = call_SU2(konditions, settings, geometry)
                     count += 1
             
             time1 = time.time()
@@ -232,12 +240,16 @@ class SU2_inviscid_Super(Aerodynamics):
             xy         = data_array[:,0:2]
             CL         = data_array[:,2:3]
             CD         = data_array[:,3:4]
+            CM         = data_array[:,4:5]
 
         # Save the data
-        np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='AoA Mach CL CD')
+        np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD,CM]),fmt='%10.8f',header='AoA Mach CL CD CM')
+
+        print('Added location of training_file to aerodynamics data structure after creation!')
+        self.training_file = geometry.tag+'_data.txt'
 
         # Store training data
-        training.coefficients = np.hstack([CL,CD])
+        training.coefficients = np.hstack([CL,CD, CM])
         training.grid_points  = xy
         
 
@@ -271,6 +283,7 @@ class SU2_inviscid_Super(Aerodynamics):
         mach_data = training.Mach
         CL_data   = training.coefficients[:,0]
         CD_data   = training.coefficients[:,1]
+        CM_data   = training.coefficients[:,2]
         xy        = training.grid_points 
         
         #import pyKriging
@@ -310,9 +323,56 @@ class SU2_inviscid_Super(Aerodynamics):
         #regr_cl = svm.SVR(C=500.)
         #regr_cd = svm.SVR()
         #cl_surrogate = regr_cl.fit(xy, CL_data)
-        #cd_surrogate = regr_cd.fit(xy, CD_data)          
-        
-        
+        #cd_surrogate = regr_cd.fit(xy, CD_data)
+
+        #Set stuff up to be able to find AC
+        min_mach = np.amin(xy[:,1])
+
+        length = xy.shape[0]
+
+        #print(AoA_data, mach_data)
+        #print(CL_data, CM_data)
+        #print(xy)
+
+        counter = 0
+
+        #try:
+        #    print('Aerodynamic Center was set previously to: ', self.geometry.aerodynamic_center)
+        #except:
+        for i in range(0,length):
+            #print('Loop iter: ', i)
+            #print('Counter and min_mach: ', counter, min_mach)
+            if xy[i,1]==min_mach and counter==1:
+                #print('Entered Upper')
+                upper_aoa    = xy[i,0]
+                upper_cl     = CL_data[i]
+                upper_cm     = CM_data[i]
+                #print(AoA_data[i], CL_data[i], CM_data[i])
+                break
+            elif xy[i,1]==min_mach and counter==0:
+                #print('Entered Lower')
+                lower_aoa    = xy[i,0]
+                lower_cl     = CL_data[i]
+                lower_cm     = CM_data[i]
+                #print(xy[i,0], CL_data[i], CM_data[i])
+                counter     += 1
+
+
+        #print(upper_aoa)
+        #print(lower_aoa)
+        #print(upper_cl)
+        #print(lower_cl)
+        #print(upper_cm)
+        #print(lower_cm)
+
+        CL_slope = (upper_cl - lower_cl)/(upper_aoa - lower_aoa)
+        CM_slope = (upper_cm - lower_cm)/(upper_aoa - lower_aoa)
+
+        x_ac = -1*(CM_slope/CL_slope) + 0.25
+
+        self.storage.aerodynamic_center = x_ac
+      
+        #Saving surrogates to the places they are needed        
         self.surrogates.lift_coefficient_subsonic = cl_surrogate_sub
         self.surrogates.lift_coefficient_supersonic = cl_surrogate_sup
         self.surrogates.drag_coefficient_subsonic = cd_surrogate_sub
@@ -432,6 +492,7 @@ def call_SU2(conditions,settings,geometry):
     else:
         SU2_settings.reference_area  = geometry.reference_area/2.
     SU2_settings.mach_number     = conditions.aerodynamics.mach
+    SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     SU2_settings.maximum_iterations = iters
     
@@ -439,6 +500,6 @@ def call_SU2(conditions,settings,geometry):
     write_SU2_cfg(tag, SU2_settings)
     
     # Run SU2
-    CL, CD = call_SU2_CFD(tag,parallel,processors)
+    CL, CD, CM = call_SU2_CFD(tag,parallel,processors)
         
-    return CL, CD
+    return CL, CD, CM

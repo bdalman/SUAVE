@@ -83,7 +83,7 @@ class Supersonic_Zero(Markup):
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility # SZ
-        #compute.lift.fuselage                      = Common.Lift.fuselage_correction
+        compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
         compute.drag = Process()
@@ -96,9 +96,9 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         
-        print('Warning: Parasite drag propulsors turned off in Supersonic_Zero')
-        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        #print('Warning: Parasite drag propulsors turned off in Supersonic_Zero')
+        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         
         compute.drag.parasite.total                = Common.Drag.parasite_total

@@ -46,6 +46,7 @@ def compute_uav_cg(vehicle):
         # Wing
         wing_mass                 = vehicle.mass_properties.wing_weight
         wing_origin               = wing.origin
+        wing_old_y_loc            = wing_origin[1]
         wing_origin[1]            = 0                   # Make sure y is set to 0 so it doesn't mess up cg
         wing_cg                   = wing.mass_properties.center_of_gravity
         wing_moment               = np.linalg.norm( np.add(wing_origin,wing_cg) ) *wing_mass 
@@ -189,6 +190,9 @@ def compute_uav_cg(vehicle):
 
 
 
+        # Reset y_location of wing
+
+        vehicle.wings['main_wing'].origin[1] = wing_old_y_loc
 
 
         return vehicle

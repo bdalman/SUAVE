@@ -31,6 +31,8 @@ def write_SU2_cfg(tag,SU2_settings):
     """      
     
     ref_area = SU2_settings.reference_area
+    x_mom_ori = SU2_settings.x_moment_origin
+    ref_length = x_mom_ori * 4
     mach     = SU2_settings.mach_number
     AOA      = SU2_settings.angle_of_attack
     iters    = SU2_settings.maximum_iterations
@@ -52,10 +54,10 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('FREESTREAM_TEMPERATURE = 288.15\n\n')
     
     # Reference definition
-    f.write('REF_ORIGIN_MOMENT_X = 0.25\n\n')
+    f.write('REF_ORIGIN_MOMENT_X = ' + str(float(x_mom_ori)) + '\n\n')
     f.write('REF_ORIGIN_MOMENT_Y = 0.00\n\n')
     f.write('REF_ORIGIN_MOMENT_Z = 0.00\n\n')
-    f.write('REF_LENGTH = 1.0\n\n')
+    f.write('REF_LENGTH = ' + str(float(ref_length)) + '\n\n')
     f.write('REF_AREA = ' + str(float(ref_area)) + '\n\n')
     f.write('REF_DIMENSIONALIZATION = FREESTREAM_VEL_EQ_ONE\n\n')
     
@@ -115,7 +117,7 @@ def write_SU2_cfg(tag,SU2_settings):
     # Convergence parameters
     f.write('CONV_CRITERIA = CAUCHY\n\n')
     f.write('RESIDUAL_REDUCTION = 8\n\n')
-    f.write('RESIDUAL_MINVAL = -12\n\n')
+    f.write('RESIDUAL_MINVAL = -6\n\n') #Was set to -12
     f.write('STARTCONV_ITER = 25\n\n')
     f.write('CAUCHY_ELEMS = 100\n\n')
     f.write('CAUCHY_EPS = 1E-6\n\n')

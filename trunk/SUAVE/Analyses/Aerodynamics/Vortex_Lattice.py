@@ -59,6 +59,7 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         N/A
         """  
+
         self.tag = 'Vortex_Lattice'
 
         self.geometry = Data()
@@ -104,6 +105,7 @@ class Vortex_Lattice(Aerodynamics):
         None
         """                      
         # sample training data
+
         self.sample_training()
                     
         # build surrogate
@@ -161,6 +163,10 @@ class Vortex_Lattice(Aerodynamics):
         Sref = geometry.reference_area
         
         wings_lift_model = surrogates.lift_coefficient
+
+        #print(AoA)
+
+        #print(wings_lift_model)
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()

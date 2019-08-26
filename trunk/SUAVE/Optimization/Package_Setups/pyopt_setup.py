@@ -10,6 +10,7 @@
 
 # suave imports
 import numpy as np
+from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 
 
@@ -60,7 +61,16 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     if FD == 'parallel':
         from mpi4py import MPI
         comm = MPI.COMM_WORLD
-        myrank = comm.Get_rank()      
+        myrank = comm.Get_rank()
+        #size = comm.size
+        problem.parallel = Data()
+        problem.parallel.rank = myrank   
+        print('Hello, my rank is: ', problem.parallel.rank)
+        print('')
+        print('')   
+
+
+    
    
     # Instantiate the problem and set objective
     import pyOpt
@@ -149,8 +159,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
     elif solver == 'ALPSO':
         import pyOpt.pyALPSO
-        #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
-        opt = pyOpt.pyALPSO.ALPSO()
+        if FD=='parallel':
+            opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
+        else:
+            opt = pyOpt.pyALPSO.ALPSO()
         opt.setOption('SwarmSize', swarm)
         opt.setOption('maxOuterIter', OuterLoop)
     if nonderivative_line_search==True:
@@ -158,7 +170,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     if FD == 'parallel':
         #outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
         print('Entered the parallel option', opt_prob)
-        outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        if solver!='ALPSO':
+            outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        else:
+            outputs = opt(opt_prob)
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)

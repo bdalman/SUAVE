@@ -16,3 +16,5 @@ from .trim import trim
 from .spoiler_drag import spoiler_drag
 from .untrimmed import untrimmed
 from .total_aircraft import total_aircraft
+
+from .untrimmed_SU2 import untrimmed_SU2

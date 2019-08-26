@@ -11,6 +11,7 @@
 # suave imports
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
+import random
 
 # ----------------------------------------------------------------------
 #  Pyopt_Solve
@@ -47,17 +48,26 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints
-
-    if solver == 'NSGA2':
-        max_gen= problem.optimization_problem.maxGen
-        pop_size = problem.optimization_problem.PopSize
-        random_seed = problem.optimization_problem.randomNumber
    
     if FD == 'parallel':
         from mpi4py import MPI
         comm = MPI.COMM_WORLD
         myrank = comm.Get_rank()      
    
+    
+    if solver == 'NSGA2':
+        max_gen= problem.optimization_problem.maxGen
+        pop_size = problem.optimization_problem.PopSize
+        try:
+            random_seed = problem.optimization_problem.randomNumber
+        except:
+            print('No random seed entered!')
+            random_seed = float(random.randint(123456789,16135585483168))
+            #print('Random seed is: ', random_seed)
+
+
+
+
     # Instantiate the problem and set objective
 
     try:
@@ -130,9 +140,13 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         #opt = setOption('PopSize', PopSize)
         opt.setOption('maxGen', max_gen)
         opt.setOption('PopSize', pop_size)
-        opt.setOption('seed', random_seed)
+        try:
+            opt.setOption('seed', random_seed)
+        except:
+            print('Random seed is default!')
         opt.setOption('PrintOut', 2)
         #print('Got through that part')
+        opt.setOption('xinit', 0)
         
     
     elif solver == 'ALPSO':
@@ -156,6 +170,7 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     if FD == 'parallel':
         print('Entered the parallel option', opt_prob)
         outputs = opt(opt_prob, sens='FD',sensMode='pgc')        # Changed this line to enable parallel based on forum post for pyOptSparse
+        #outputs = opt(opt_prob) #Shouldn't need FD or pgc for NSGA-II
         #print('Leaving the paralled option')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':

@@ -82,7 +82,7 @@ def estimate_wing_bending_moment(vehicle):
 
 	# Finally, we get
 
-	print('WBM Debugging: ', q, q_cent, q_tot, q_location)
+	#print('WBM Debugging: ', q, q_cent, q_tot, q_location)
 
 	wing_bending_moment = (q_tot * q_location) / wing_root_chord
 

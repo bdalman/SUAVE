@@ -56,11 +56,15 @@ def induced_drag_aircraft(state,settings,geometry):
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     
     
-    #print(mach)
+
 
     
     if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)   
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp) 
+
+    #print(e)
+    #print(wing_e)
+    #print('CL is: ', aircraft_lift)  
     
     total_induced_drag = np.zeros_like(mach)
     if any(mach<.95):

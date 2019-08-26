@@ -27,6 +27,8 @@ from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 
+from mpi4py import MPI
+
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
@@ -87,23 +89,28 @@ class SU2_Euler_Super(Markup):
         # Do a traditional drag buildup
         compute.drag = Process()
         
-        '''
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
+        
+        #compute.drag.compressibility               = Process()
+        #compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        print('Propulsor and pylon parasite drag disabled for Euler Super!')
+        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
         compute.drag.parasite.total                = Common.Drag.parasite_total
+
+        '''
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         '''
-        compute.drag.untrimmed                     = SU2_inviscid_Super()
+
+        compute.drag.inviscid                      = SU2_inviscid_Super()
+        compute.drag.untrimmed                     = Common.Drag.untrimmed_SU2
 
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
@@ -137,16 +144,28 @@ class SU2_Euler_Super(Markup):
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag
+
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
+            comm = MPI.COMM_WORLD
+            nproc = comm.Get_size()
+            myrank = comm.Get_rank()
+            #status = MPI.Status()
             write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            
             write_geo_file(tag)
+            print('Finished writting geo file for: ', tag)
             mesh_geo_file(tag)
+
+
+            print('My rank is identified in Euler after meshing!! :', myrank)
+            print('Finished meshing geo file!')
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()
 
-        self.process.compute.drag.untrimmed.geometry = self.geometry
-        self.process.compute.drag.untrimmed.initialize()
+        self.process.compute.drag.inviscid.geometry = self.geometry
+        #self.geometry.tag = tag
+        self.process.compute.drag.inviscid.initialize()
         
     finalize = initialize

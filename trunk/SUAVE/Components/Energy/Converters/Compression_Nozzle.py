@@ -171,8 +171,6 @@ class Compression_Nozzle(Energy_Component):
         h_out   = Cp*T_out
         u_out   = np.sqrt(2.*(ht_out-h_out))
 
-        place = Pt_in * pid * eta_rec
-
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out
         self.outputs.stagnation_pressure     = Pt_out
