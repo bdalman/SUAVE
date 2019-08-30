@@ -12,3 +12,5 @@ from .size_weights_given_mission_range import size_weights_given_mission_range
 from .estimate_wing_bending_moment import estimate_wing_bending_moment
 from .size_mission_accel_for_aoa import size_mission_accel_for_aoa
 from .size_mission_accel_for_cl import size_mission_accel_for_cl
+from .V_n_diagram import V_n_diagram
+

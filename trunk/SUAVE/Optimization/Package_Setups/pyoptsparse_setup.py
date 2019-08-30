@@ -2,7 +2,7 @@
 # pyopt_setup.py
 #
 # Created:  Aug 2018, E. Botero
-# Modified: 
+# Modified: Mar 2019, M. Kruger
 
 # ----------------------------------------------------------------------
 #  Imports
