@@ -73,7 +73,7 @@ def initialize_conditions(segment):
     N/A
     """   
 
-    conditions = state.conditions
+    conditions = segment.state.conditions
 
     # unpack inputs
     alt      = segment.altitude

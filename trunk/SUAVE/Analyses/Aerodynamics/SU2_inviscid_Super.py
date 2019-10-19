@@ -144,7 +144,8 @@ class SU2_inviscid_Super(Aerodynamics):
         lift_model_sup = surrogates.lift_coefficient_supersonic
         drag_model_sub = surrogates.drag_coefficient_subsonic
         drag_model_sup = surrogates.drag_coefficient_supersonic
-        
+
+
         # Inviscid lift
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
@@ -495,6 +496,9 @@ def call_SU2(conditions,settings,geometry):
     SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     SU2_settings.maximum_iterations = iters
+
+    SU2_settings.physical_prob = settings.physical_problem
+    SU2_settings.turb_model = settings.turb_model
     
     # Build SU2 configuration file
     write_SU2_cfg(tag, SU2_settings)

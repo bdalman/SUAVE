@@ -91,7 +91,9 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
         vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
     
     # Set the max edge length so we have on average 50 elements per chord length
+    print('Need to fix hack in write_vsp_mesh line 95!!')
     MAC     = geometry.wings.main_wing.chords.mean_aerodynamic
+    #MAC     = geometry.wings.winggeom.chords.mean_aerodynamic
     min_len = MAC/50.
     vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
     
@@ -156,6 +158,11 @@ def set_sources(geometry):
     #for propulsor in geometry.propulsors:
         #comp_type_dict[propulsor.tag] = 'turbojet'
         #comp_dict[propulsor.tag] = propulsor
+
+
+    #print('Mesh source workaround implemented!!! in write_vsp_mesh!!')
+    #if True: #Shitty hack to get my terrible parametric model to mesh
+    #    comp_type_dict['FuselageGeom'] = 'fuselage'
         
     components = vsp.FindGeoms()
     

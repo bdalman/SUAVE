@@ -60,7 +60,7 @@ def segment_properties(settings,wing):
     num_segments              = len(wing.Segments.keys())      
     
     total_wetted_area            = 0  
-    root_chord                   = wing.chords.root      
+    root_chord                   = wing.chords.root    
     
     for i_segs in range(num_segments):
         if i_segs == num_segments-1:
@@ -73,6 +73,7 @@ def segment_properties(settings,wing):
                 chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
                 chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent   
                 wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
+
                 taper         = chord_tip/wing_root  
                 mac_seg       = wing_root  * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))  
                 Sref_seg      = span_seg*(chord_root+chord_tip)*0.5 

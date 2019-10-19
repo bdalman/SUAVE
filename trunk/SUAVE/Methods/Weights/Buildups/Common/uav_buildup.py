@@ -89,7 +89,7 @@ def uav_buildup(vehicle,
     try:                    #This block currently only catches one specific exception. Should re-write to be general
         tailArea                = vehicle.wings['vertical_stabilizer'].areas.wetted
     except:
-        tailArea                = vehicle.wings['v_tail'].areas.wetted
+        tailArea                = vehicle.wings['vtail'].areas.wetted
 
 
     fuelVol                     = fuelVolWing + fuelVolFuse

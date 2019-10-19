@@ -36,13 +36,20 @@ def write_SU2_cfg(tag,SU2_settings):
     mach     = SU2_settings.mach_number
     AOA      = SU2_settings.angle_of_attack
     iters    = SU2_settings.maximum_iterations
+
+    physical_prob = SU2_settings.physical_prob  # Need to write these into the defaults EULER
+    turb_model = SU2_settings.turb_model
     
     
     filename = tag + '.cfg'
     f = open(filename,mode='w')
 
     # Problem definition
-    f.write('PHYSICAL_PROBLEM = EULER\n\n')
+    f.write('PHYSICAL_PROBLEM = ' + str(physical_prob) + '\n\n')
+
+    if str(physical_prob)=='FEM_RANS':
+        f.write('KIND_TURB_MODEL = ' + str(turb_model) + '\n\n')
+
     f.write('MATH_PROBLEM = DIRECT\n\n')
     f.write('RESTART_SOL = NO\n\n')
     

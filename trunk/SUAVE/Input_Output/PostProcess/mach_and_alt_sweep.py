@@ -77,13 +77,20 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
     thrust_required = np.zeros(num_sections * num_alts)
     tsfc = np.zeros(num_sections * num_alts)
     specific_impulse = np.zeros(num_sections * num_alts)
+    throttle = np.zeros(num_sections * num_alts)
 
     total_count = 0
 
     for j in range(0, num_alts):
         for i in range(0, num_sections):
-            analyses.missions.base.segments[0].air_speed = target_speeds[i]
             analyses.missions.base.segments[0].altitude = target_alts[j]
+            speed_of_sound = get_speed_of_sound(target_alts[j])
+
+            new_target_speed = speed_of_sound * target_speeds[i]
+
+            #analyses.missions.base.segments[0].air_speed = target_speeds[i]
+            analyses.missions.base.segments[0].air_speed = new_target_speed
+            
             analyses.finalize()
 
             mission = analyses.missions.base
@@ -129,6 +136,8 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
             tsfc[total_count] = new_results.segments[0].analyses.energy.network[keys[0]].thrust.outputs.thrust_specific_fuel_consumption
             specific_impulse[total_count] = new_results.segments[0].analyses.energy.network[keys[0]].thrust.outputs.specific_impulse
 
+            throttle[total_count] = new_results.segments[0].state.unknowns.throttle
+
             print('Iteration: ', total_count)
 
             #print(breakdown)
@@ -142,6 +151,38 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
     
 
 
-    return [aoa, drag, lift, speed, mach, alt, temp, pres, dynamic_pres, stag_temp, stag_pres, thrust_required, tsfc, specific_impulse]
+    return [aoa, drag, lift, speed, mach, alt, temp, pres, dynamic_pres, stag_temp, stag_pres, thrust_required, tsfc, specific_impulse, throttle]
+
+
+
+
+
+def get_speed_of_sound(altitude):
+    '''Takes input of altitude in km
+
+    Returns speed of sound for that specific altitude
+
+    '''
+
+    gamma = 1.4
+    R = 287
+
+    # From US Standard Atmosphere 1976
+    altitude_breaks    = np.array( [-2.00    , 0.00,     11.00,      20.00,      32.00,      47.00,      51.00,      71.00,      84.852]) * 1000    # m, geopotential altitude
+    temperature_breaks = np.array( [301.15   , 288.15,   216.65,     216.65,     228.65,     270.65,     270.65,     214.65,     186.95])      # K
+
+    length = len(altitude_breaks)
+
+    for i in range(0, length):
+        if altitude <= altitude_breaks[i+1]:
+            percent_across = (altitude-altitude_breaks[i])/(altitude_breaks[i+1]-altitude_breaks[i])
+            new_temp = temperature_breaks[i] + percent_across*(temperature_breaks[i+1]-temperature_breaks[i])
+            break
+
+
+    a = np.sqrt(gamma * R * new_temp)
+
+
+    return a
 
 
