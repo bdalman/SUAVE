@@ -46,7 +46,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
         CFD_FAILED_TO_EXECUTE = True
 
     if not CFD_FAILED_TO_EXECUTE:        
-        f = open(tag + '_history.dat')
+        f = open(tag + '_history.csv')
             
         SU2_results = Data()    
         
