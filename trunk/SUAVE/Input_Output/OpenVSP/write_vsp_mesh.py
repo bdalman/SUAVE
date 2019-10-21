@@ -14,6 +14,8 @@ import numpy as np
 import time
 import fileinput
 
+import sys
+
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
     """This create an .stl surface mesh based on a vehicle stored in a .vsp3 file.
@@ -103,13 +105,19 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     vsp.Update()
     
     vsp.WriteVSPFile(tag + '_premesh.vsp3')
+
+    
     
     print('Starting mesh for ' + tag + ' (This may take several minutes)')
     ti = time.time()
+    
     vsp.ComputeCFDMesh(set_int,file_type)
+
     tf = time.time()
     dt = tf-ti
     print('VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s')
+
+
     
 ## @ingroup Input_Output-OpenVSP
 def set_sources(geometry):

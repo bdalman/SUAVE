@@ -37,16 +37,19 @@ def mesh_geo_file(tag):
 
     print('This is right where it fails!!')
     #print(message)
-
     #os.system(message)    
+    #print( 'Output is: ', subprocess.check_output(['python3', '--version']))
+    #print('!')
 
-    print( 'Output is: ', subprocess.check_output(['python3', '--version']))
-
-    print('!')
+    f = open('mesh_log_file.txt', 'a')
+    f.write('# ----- Writing new mesh output! ----- #')
+    f.write('\n')
                               
     # Call Gmsh as would be done in the terminal
-    subprocess.run(['gmsh',tag+'.geo','-3','-o',tag+'.su2','-format','su2', '-saveall'])
+    subprocess.call(['gmsh',tag+'.geo','-3','-o',tag+'.su2','-format','su2', '-saveall'], stdout=f, stderr=subprocess.STDOUT)
 
-    print('Finished subprocess!')
+    f.close()
+
+    print('Finished gmsh subprocess!')
     
     pass

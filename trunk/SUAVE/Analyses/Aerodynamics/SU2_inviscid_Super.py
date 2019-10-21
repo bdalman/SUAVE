@@ -68,6 +68,7 @@ class SU2_inviscid_Super(Aerodynamics):
         self.settings.parallel           = False
         self.settings.processors         = 1
         self.settings.maximum_iterations = 1500
+        self.settings.CFD_failed_flag    = False
 
         # Conditions table, used for surrogate model training
         self.training = Data()        
@@ -104,8 +105,7 @@ class SU2_inviscid_Super(Aerodynamics):
         """                      
         # Sample training data
         self.sample_training()
-                    
-        # Build surrogate
+        
         self.build_surrogate()
 
 
@@ -236,6 +236,11 @@ class SU2_inviscid_Super(Aerodynamics):
             time1 = time.time()
             
             print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
+
+            if max(CD) > 9000:
+                self.settings.CFD_failed_flag = True
+            else:
+                self.settings.CFD_failed_flag = False
         else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
