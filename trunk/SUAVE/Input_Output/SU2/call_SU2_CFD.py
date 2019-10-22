@@ -41,7 +41,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
         if parallel==True:
             sys.path.append(os.environ['SU2_HOME'])
             from parallel_computation import parallel_computation
-            parallel_computation( tag+'.cfg', processors )
+            parallel_computation( tag+'.cfg', processors ) # This actually seems to work for parallel
             pass
         else:
             #Old line below
