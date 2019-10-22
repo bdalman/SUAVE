@@ -40,7 +40,11 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
             parallel_computation( tag+'.cfg', processors )
             pass
         else:
-            subprocess.call(['SU2_CFD',tag+'.cfg'])
+            #Old line below
+            #subprocess.call(['SU2_CFD',tag+'.cfg'])
+            #New process:
+            from parallel_computation import parallel_computation
+            parallel_computation( tag+'.cfg', processors) #Processors here should default to 1
         CFD_FAILED_TO_EXECUTE = False
     except:
         CFD_FAILED_TO_EXECUTE = True

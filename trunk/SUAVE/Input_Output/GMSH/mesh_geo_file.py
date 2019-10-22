@@ -6,6 +6,11 @@
 
 import subprocess
 import os
+import re
+
+
+
+_EXEC_ENV_REMOVE = re.compile('^(OMPI|PMIX)')
 
 ## @ingroup Input_Output-GMSH
 def mesh_geo_file(tag):
@@ -46,10 +51,15 @@ def mesh_geo_file(tag):
     f.write('\n')
                               
     # Call Gmsh as would be done in the terminal
-    subprocess.call(['gmsh',tag+'.geo','-3','-o',tag+'.su2','-format','su2', '-saveall'], stdout=f, stderr=subprocess.STDOUT)
+    subprocess.run(['gmsh',tag+'.geo','-3','-o',tag+'.su2','-format','su2', '-saveall', '-v', '9', '-cpu'], stdout=f, stderr=subprocess.STDOUT, env=_safe_env())
 
     f.close()
 
     print('Finished gmsh subprocess!')
     
     pass
+
+def _safe_env():
+    return dict(
+        [(k,v) for k, v in os.environ.items() if not _EXEC_ENV_REMOVE.search(k)],
+    )
