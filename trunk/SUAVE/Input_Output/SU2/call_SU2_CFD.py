@@ -8,6 +8,10 @@
 import subprocess
 from SUAVE.Core import Data
 import sys, os
+import re
+
+
+_EXEC_ENV_REMOVE = re.compile('^(OMPI|PMIX)')
 
 ## @ingroup Input_Output-SU2
 def call_SU2_CFD(tag,parallel=False,processors=1):
@@ -43,8 +47,17 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
             #Old line below
             #subprocess.call(['SU2_CFD',tag+'.cfg'])
             #New process:
-            from parallel_computation import parallel_computation
-            parallel_computation( tag+'.cfg', processors) #Processors here should default to 1
+            #from parallel_computation import parallel_computation
+            #parallel_computation( tag+'.cfg', processors) #Processors here should default to 1
+            
+            #subprocess.run(['which', 'parallel_computation.py'])
+            #subprocess.run(['echo', '$SU2_RUN'])
+            #subprocess.run(['echo', 'LINE'])
+            #print(sys.path)
+
+            subprocess.run(['SU2_CFD', tag+'.cfg'], env=_safe_env())
+
+            #subprocess.run(['parallel_computation.py','-n',processors,'-f',tag+'.cfg'], stdout=f, stderr=subprocess.STDOUT)
         CFD_FAILED_TO_EXECUTE = False
     except:
         CFD_FAILED_TO_EXECUTE = True
@@ -92,6 +105,11 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
         CD = 9999
         CMy = 9999
         return CL,CD,CMy
+
+def _safe_env():
+    return dict(
+        [(k,v) for k, v in os.environ.items() if not _EXEC_ENV_REMOVE.search(k)],
+    )
 
 if __name__ == '__main__':
     call_SU2_CFD('cruise',parallel=True)

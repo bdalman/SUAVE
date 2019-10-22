@@ -236,8 +236,9 @@ class SU2_inviscid_Super(Aerodynamics):
             time1 = time.time()
             
             print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
+            time_elapsed = time1-time0
 
-            if max(CD) > 9000:
+            if max(CD) > 9000 or time_elapsed < 10:
                 self.settings.CFD_failed_flag = True
             else:
                 self.settings.CFD_failed_flag = False
