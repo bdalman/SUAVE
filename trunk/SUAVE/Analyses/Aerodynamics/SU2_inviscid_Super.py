@@ -133,6 +133,11 @@ class SU2_inviscid_Super(Aerodynamics):
           drag_coefficient [-] CD
         """ 
         # Unpack
+        if CFD_failed_flag == True: #Already have flag set, so just send back reasonable values so it can still converge
+            inviscid_lift = 1.0
+            inviscid_drag = 0.2
+            return inviscid_lift, inviscid_drag
+
         surrogates = self.surrogates        
         conditions = state.conditions
         x_ac       = self.storage.aerodynamic_center
@@ -238,7 +243,7 @@ class SU2_inviscid_Super(Aerodynamics):
             print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
             time_elapsed = time1-time0
 
-            if max(CD) > 9000 or time_elapsed < 10:
+            if max(CD) > 9000 or time_elapsed < 15: #Saw one instance take 12s for 12 different runs
                 self.settings.CFD_failed_flag = True
             else:
                 self.settings.CFD_failed_flag = False
