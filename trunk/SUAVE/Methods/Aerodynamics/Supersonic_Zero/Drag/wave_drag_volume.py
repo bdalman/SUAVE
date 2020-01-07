@@ -40,6 +40,7 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
             num_main_wings += 1
         if num_main_wings > 1:
             raise NotImplementedError('This function is not designed to handle multiple main wings.')
+
         
     LE_sweep = main_wing.sweeps.leading_edge / Units.deg
     L        = vehicle.total_length

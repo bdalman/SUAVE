@@ -104,6 +104,7 @@ class SU2_Euler_Super(Markup):
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
         compute.drag.parasite.total                = Common.Drag.parasite_total
 
+
         '''
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
@@ -153,11 +154,16 @@ class SU2_Euler_Super(Markup):
             nproc = comm.Get_size()
             myrank = comm.Get_rank()
             #status = MPI.Status()
+
+            print('Uncomment these lines in SU2_Euler_Super when found parasite drag!')
+            
+            '''
             write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             
             write_geo_file(tag)
             print('Finished writting geo file for: ', tag)
             mesh_geo_file(tag)
+            '''
 
 
             print('My rank is identified in Euler after meshing!! :', myrank)

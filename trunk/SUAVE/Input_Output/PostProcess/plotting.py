@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 #Set plot style at the top
 #Good plot styles: seaborn, ggplot, classic(ok)
-plt.style.use('ggplot')
+plt.style.use('default')
 
 
 def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=None, marker_flag=False, save_location=None):
@@ -52,7 +52,7 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 	#fig = plt.figure( plot_header, figsize=(8,6) )
 	fig = plt.figure( plot_header, figsize=(7,4) )
     # Define plot settings - font size, total plot size, etc
-	#plt.rc('font', size=18)
+	plt.rc('font', size=10)
 
 	# Actually plot now
 	if labels[0] != None:
@@ -93,7 +93,7 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 
 	return
 
-def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_data_per_plot=1, num_errors_given=1, labels=None, save_location=None):
+def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_data_per_plot=1, num_errors_given=1, labels=None, save_location=None, limits=None):
 	""" Function that plots my data in whatever format is most appropriate, with the first columns of data being plotted with error bars, and the rest with lines
 
         Assumptions:
@@ -113,6 +113,7 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
         	save_location				      [optional]
         	fig_x_size 						  [optional]
         	fig_y_size 						  [optional]
+        	limits - list of 4 inputs         [optional]
 
         Outputs:
         	n/a
@@ -132,7 +133,7 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
     # Define plot title
 	fig = plt.figure( plot_header, figsize=(7,4) )
     # Define plot settings - font size, total plot size, etc
-	#plt.rc('font', size=14)
+	plt.rc('font', size=10)
 
 	# Actually plot now
 	if len(labels)>0:
@@ -160,6 +161,10 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 
 	plt.axis() # TODO: Implement bound setting
 
+	if not limits==None:
+		plt.xlim(limits[0], limits[1])
+		plt.ylim(limits[2], limits[3])
+
 	# Save OR show plots here, TODO: Improve this with more options
 	if save_location:
 		plt.savefig(save_location + plot_header + '.eps')
@@ -174,7 +179,7 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 # Helper functions
 
 def pick_marker(index):
-	marker_types = np.array(['ro', 'bv', 'g^', 'c<', 'm1', 'ys', 'k*'])
+	marker_types = np.array(['ko', 'bv', 'r^', 'c<', 'm1', 'ys', 'g*'])
 
 	try:
 		marker_selection = str(marker_types[index])

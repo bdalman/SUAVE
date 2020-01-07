@@ -133,7 +133,7 @@ class SU2_inviscid_Super(Aerodynamics):
           drag_coefficient [-] CD
         """ 
         # Unpack
-        if CFD_failed_flag == True: #Already have flag set, so just send back reasonable values so it can still converge
+        if self.settings.CFD_failed_flag == True: #Already have flag set, so just send back reasonable values so it can still converge
             inviscid_lift = 1.0
             inviscid_drag = 0.2
             return inviscid_lift, inviscid_drag
@@ -438,8 +438,10 @@ class SU2_inviscid_Super(Aerodynamics):
 
         # Stub for plotting drag if implemented:
 
+        drag_levels = np.linspace(0,0.2,11)
+
         fig = plt.figure('Coefficient of Drag Surrogate Plot')    
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=drag_levels)
         #plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
         plt.scatter(xy[:,0]/Units.deg,xy[:,1])
@@ -452,7 +454,7 @@ class SU2_inviscid_Super(Aerodynamics):
         #plt.xlabel('Angle of Attack (deg)')
         #plt.ylabel('Mach Number')   
         
-        #plt.show() 
+        plt.show() 
 
         return
 

@@ -49,14 +49,14 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
     #print(place_holder)
     #print(breakdown)
     conditions = state.conditions
-    target_speeds = mach_targets
+    #target_speeds = mach_targets
     target_alts = alt_targets
+    target_machs = mach_targets
 
-
-    num_sections = len(target_speeds)
+    num_sections = len(target_machs)
     num_alts = len(target_alts)
 
-    print('Passed in target speeds: ', target_speeds)
+    print('Passed in target machs: ', target_machs)
     print('Passed in target alts: ', target_alts)
 
 
@@ -86,7 +86,7 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
             analyses.missions.base.segments[0].altitude = target_alts[j]
             speed_of_sound = get_speed_of_sound(target_alts[j])
 
-            new_target_speed = speed_of_sound * target_speeds[i]
+            new_target_speed = speed_of_sound * target_machs[i]
 
             #analyses.missions.base.segments[0].air_speed = target_speeds[i]
             analyses.missions.base.segments[0].air_speed = new_target_speed
@@ -105,16 +105,17 @@ def mach_and_alt_sweep(analyses, mach_targets, alt_targets):
             aoa[total_count] = new_results.segments[0].conditions.aerodynamics.angle_of_attack
             drag[total_count] = -1 * new_results.segments[0].conditions.frames.wind.drag_force_vector[:,0]
             lift[total_count] = -1 * new_results.segments[0].conditions.frames.wind.lift_force_vector[:,2]
-            speed[total_count] = target_speeds[i]
+            #speed[total_count] = target_speeds[i]
             mach[total_count] = new_results.segments[0].conditions.freestream.mach_number
             alt[total_count] = target_alts[j]
             temp[total_count] = new_results.segments[0].conditions.freestream.temperature
+            speed[total_count] = mach[total_count] * get_speed_of_sound(alt[total_count])
             pres[total_count] = new_results.segments[0].conditions.freestream.pressure
             dynamic_pres[total_count] = new_results.segments[0].conditions.freestream.dynamic_pressure
             stag_temp[total_count] = new_results.segments[0].conditions.freestream.stagnation_temperature
             stag_pres[total_count] = new_results.segments[0].conditions.freestream.stagnation_pressure
 
-            print('For speed of :', new_results.segments[0].conditions.freestream.mach_number)
+            print('For mach of :', new_results.segments[0].conditions.freestream.mach_number)
             print('Lift coef is: ', new_results.segments[0].conditions.aerodynamics.lift_coefficient)
             print('Throttle is: ', new_results.segments[0].state.unknowns.throttle)
 
