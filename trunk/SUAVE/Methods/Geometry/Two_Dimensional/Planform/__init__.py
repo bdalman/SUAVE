@@ -12,3 +12,4 @@ from .populate_control_sections import populate_control_sections
 from .wing_planform_new import wing_planform_new
 from .wing_planform_sections import wing_planform_sections
 from .segment_properties import segment_properties
+from .wing_sweep_location_convert import wing_sweep_location_convert
