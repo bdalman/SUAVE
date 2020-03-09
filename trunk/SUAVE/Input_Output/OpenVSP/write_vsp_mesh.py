@@ -92,12 +92,15 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     if growth_limiting_flag == True:
         vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
     
-    # Set the max edge length so we have on average 50 elements per chord length
+    # Set the max edge length on the surface so we have on average 50 elements per chord length
     print('Need to fix hack in write_vsp_mesh line 95!!')
     MAC     = geometry.wings.main_wing.chords.mean_aerodynamic
     #MAC     = geometry.wings.winggeom.chords.mean_aerodynamic
-    min_len = MAC/50.
-    vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
+    max_surf_len = MAC/1.
+    vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,max_surf_len)
+
+    min_surf_len = MAC/50
+    vsp.SetCFDMeshVal(vsp.CFD_MIN_EDGE_LEN, min_surf_len)
     
     # vsp.AddDefaultSources()   
     set_sources(geometry)

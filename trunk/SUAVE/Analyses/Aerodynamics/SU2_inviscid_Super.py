@@ -506,12 +506,20 @@ def call_SU2(conditions,settings,geometry):
     else:
         SU2_settings.reference_area  = geometry.reference_area/2.
     SU2_settings.mach_number     = conditions.aerodynamics.mach
-    SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
+    try:
+        SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
+    except:
+        print('No fuselage length found in call_SU2! Setting to 0')
+        SU2_settings.x_moment_origin = 0.0
+
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     SU2_settings.maximum_iterations = iters
 
     SU2_settings.physical_prob = settings.physical_problem
-    SU2_settings.turb_model = settings.turb_model
+    if SU2_settings.physical_prob == 'NAVIER_STOKES':
+        SU2_settings.turb_model = settings.turb_model
+    else:
+        SU2_settings.turb_model = None
     
     # Build SU2 configuration file
     write_SU2_cfg(tag, SU2_settings)

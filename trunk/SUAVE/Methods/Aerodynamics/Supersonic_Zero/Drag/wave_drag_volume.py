@@ -17,13 +17,13 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
     Basic fit
 
     Source:
-    D. Raymer, Aircraft Design: A Conceptual Approach, Fifth Ed. pg. 448-449
+    D. Raymer, Aircraft Design: A Conceptual Approach, Fifth Ed. pg. 448-449 (p.291-292 in 2nd Ed)
 
     Inputs:
     vehicle.
       wings.main_wing.sweeps.leading_edge [rad]
-      total_length                        [m]
-      maximum_cross_sectional_area        [m^2]
+      total_length                        [m] - excluding section where x_sectional area is constant
+      maximum_cross_sectional_area        [m^2] - For area rule
       reference_area                      [m^2]
       
     Outputs:
