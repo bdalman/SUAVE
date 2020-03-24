@@ -82,14 +82,23 @@ def parasite_drag_wing(state,settings,geometry):
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     
 
-    #print('Overiding freestream Re in wings!')
-    re = 2e6
+    print('Overiding freestream Re in wings!')
+
+    #print('Freestream Re (not used):', re)
+    print('Mach: ', Mc)
+    #print('Temp: ', Tc)
+    re = 2.414e7
+    Tc = 180
     #print(re)
     
     # if wing has segments, compute and sum parasite drag of each segment
     
     xtu       = wing.transition_x_upper
-    xtl       = wing.transition_x_lower     
+    xtl       = wing.transition_x_lower 
+
+    print('Upper transition: ', xtu)
+    xtu = 0.01
+    xtl = 0.01    
     
     if num_segments>0:        
         total_wetted_area            = 0

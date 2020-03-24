@@ -97,4 +97,7 @@ def parasite_total(state,settings,geometry):
     state.conditions.aerodynamics.drag_breakdown.parasite.total = total_parasite_drag
 
 
+    print('Total parasite drag is: ', total_parasite_drag)
+
+
     return total_parasite_drag

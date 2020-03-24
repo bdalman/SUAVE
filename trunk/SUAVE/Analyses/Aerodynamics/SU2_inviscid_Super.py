@@ -142,7 +142,8 @@ class SU2_inviscid_Super(Aerodynamics):
         conditions = state.conditions
         x_ac       = self.storage.aerodynamic_center
 
-        vehicle_length = geometry.fuselages['fuselage'].lengths.total        
+        print('Turn on line 145 and 181 in SU2_invisc_super when modelling fuse again!')
+        #vehicle_length = geometry.fuselages['fuselage'].lengths.total        
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model_sub = surrogates.lift_coefficient_subsonic
@@ -177,7 +178,7 @@ class SU2_inviscid_Super(Aerodynamics):
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
         
-        geometry.aerodynamic_center = x_ac * vehicle_length
+        #geometry.aerodynamic_center = x_ac * vehicle_length
 
         return inviscid_lift, inviscid_drag
 
