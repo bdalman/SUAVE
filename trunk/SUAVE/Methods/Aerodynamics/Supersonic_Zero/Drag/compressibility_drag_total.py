@@ -264,11 +264,11 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
     cd_c = cd_c*wing.areas.reference/Sref_main    
-    
+
     # Change empty format to avoid errors in assignment of returned values
-    if np.shape(cd_c) == (0,0):
-        cd_c = np.reshape(cd_c,[0,1]) 
-        mcc  = np.reshape(mcc,[0,1]) 
-        MDiv = np.reshape(MDiv,[0,1]) 
+    if np.shape(cd_c) == (0,0) or np.shape(cd_c) == (0,):
+        cd_c = np.zeros([1,1])
+        mcc  = np.zeros([1,1])
+        MDiv = np.zeros([1,1])
 
     return (cd_c,mcc,MDiv)
