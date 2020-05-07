@@ -85,9 +85,10 @@ def parasite_drag_wing(state,settings,geometry):
     print('Overiding freestream Re in wings!')
 
     #print('Freestream Re (not used):', re)
-    print('Mach: ', Mc)
+    #print('Mach: ', Mc)
     #print('Temp: ', Tc)
-    re = 2.414e7
+    #re = 2.414e7
+    re = (5.657/12) * 2e6  # This is the freestream re for all briggs cases
     Tc = 180
     #print(re)
     
@@ -96,9 +97,9 @@ def parasite_drag_wing(state,settings,geometry):
     xtu       = wing.transition_x_upper
     xtl       = wing.transition_x_lower 
 
-    print('Upper transition: ', xtu)
-    xtu = 0.01
-    xtl = 0.01    
+    #print('Upper transition: ', xtu)
+    #xtu = 0.01
+    #xtl = 0.01    
     
     if num_segments>0:        
         total_wetted_area            = 0
