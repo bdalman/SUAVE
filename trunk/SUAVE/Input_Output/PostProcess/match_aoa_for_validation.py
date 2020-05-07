@@ -86,7 +86,8 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
             CM[i] = stab_analyses.surrogates.moment_coefficient.predict([ np.array([ target_AOA[i] * Units.deg, target_mach ]) ])
 
     if CM_FLAG==0:
-        return [AOA,CL,CD]
+        CM = np.zeros(num_sections)
+        return [AOA,CL,CD,CM]
     elif CM_FLAG==1:
         return [AOA,CL,CD,CM]
 
