@@ -200,17 +200,9 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     root_chord = wing.chords.root
     tip_chord  = wing.chords.tip
 
-    SWEEP_LE_FLAG = False
+    sweep      = wing.Segments[0].sweeps.quarter_chord / Units.deg
+    sweep_loc  = 0.25
 
-    if wing.Segments[0].sweeps.leading_edge != None and wing.Segments[0].sweeps.leading_edge != 0:
-        sweep      = wing.Segments[0].sweeps.leading_edge / Units.deg
-        sweep_loc  = 0.
-        SWEEP_LE_FLAG = True
-        print('Using LE sweep for VSP writing')
-    else:
-        sweep      = wing.Segments[0].sweeps.quarter_chord / Units.deg
-        sweep_loc  = 0.25
-        print('Using QC sweep for VSP writing')
     root_twist = wing.twists.root / Units.deg
     tip_twist  = wing.twists.tip  / Units.deg
     root_tc    = wing.thickness_to_chord 
@@ -381,11 +373,7 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
         except:
             no_twist_flag = True
 
-        #SWEEP_LE_FLAG = False
-        if SWEEP_LE_FLAG:
-            sweep_i    = wing.Segments[i_segs-1].sweeps.leading_edge / Units.deg
-        else:
-            sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+        sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
 
         tc_i       = wing.Segments[i_segs-1].thickness_to_chord
 

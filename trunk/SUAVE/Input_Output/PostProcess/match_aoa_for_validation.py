@@ -12,7 +12,7 @@ from SUAVE.Core import Units
 import numpy as np
 
 
-def match_aoa_for_validation(analyses, results, aoa_targets):
+def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_mach=1):
     """ Takes a list of input angles and the mission data structure, reruns the aerodynamics for the given AoAs 
     
         Assumptions:
@@ -24,11 +24,14 @@ def match_aoa_for_validation(analyses, results, aoa_targets):
         	mission
        	    	single_point_segments
         	target_aoas                       [deg]
+            CM_FLAG ---- 0 for no
+                         1 for yes
 
         Outputs:
         	AoA 							  [deg]
         	CL
         	CD
+            CM
 
         Properties Used:
         N/A
@@ -51,29 +54,43 @@ def match_aoa_for_validation(analyses, results, aoa_targets):
     #print(breakdown)
 
 
+    if CM_FLAG ==1:
+        stab_analyses = analyses.configs.base.stability
+
     # Initialize results variables you care about for plotting
 
     AOA = np.zeros(num_sections)
     CL  = np.zeros(num_sections)
     CD  = np.zeros(num_sections)
+    if CM_FLAG ==1:
+        CM = np.zeros(num_sections)
 
     for i in range(0, num_sections):
-    	state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
+        state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
 
-    	#print(state.conditions.aerodynamics.angle_of_attack)
+        #print(state.conditions.aerodynamics.angle_of_attack)
 
-    	new_results = aero_analyses.evaluate( state )
-
-    	#print(new_results)
-
-    	#print(breakdown)
-
-    	AOA[i] = target_AOA[i] * Units.deg   #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
-    	CL[i] = new_results.lift.total
-    	CD[i] = new_results.drag.total
+        new_results = aero_analyses.evaluate( state )
 
 
-    return [AOA, CL, CD]
+        #print(breakdown)
+
+        #print(new_results)
+
+        #print(breakdown)
+
+        AOA[i] = target_AOA[i] * Units.deg   #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
+        CL[i] = new_results.lift.total
+        CD[i] = new_results.drag.total
+        if CM_FLAG ==1:
+            CM[i] = stab_analyses.surrogates.moment_coefficient.predict([ np.array([ target_AOA[i] * Units.deg, target_mach ]) ])
+
+    if CM_FLAG==0:
+        return [AOA,CL,CD]
+    elif CM_FLAG==1:
+        return [AOA,CL,CD,CM]
+
+    
 
 
 

@@ -113,7 +113,8 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
         	save_location				      [optional]
         	fig_x_size 						  [optional]
         	fig_y_size 						  [optional]
-        	limits - list of 4 inputs         [optional]
+        	limits - list of 6 inputs         [optional]
+        		   - 1,2,4,5 are x/y lower and upper limits. 3 & 6 are x and y spacing
 
         Outputs:
         	n/a
@@ -162,8 +163,17 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 	plt.axis() # TODO: Implement bound setting
 
 	if not limits==None:
-		plt.xlim(limits[0], limits[1])
-		plt.ylim(limits[2], limits[3])
+		ax = plt.axes()
+
+		ax.set_xlim(limits[0],limits[1])
+		ax.set_ylim(limits[3],limits[4])
+		#ax.grid(False)
+		ax.xaxis.set_major_locator(plt.MultipleLocator(limits[2]))
+		ax.yaxis.set_major_locator(plt.MultipleLocator(limits[5]))
+
+		#ax.yaxis.set_major_locator(plt.LinearLocator(7))
+		#ax.xaxis.set_major_locator(plt.FixedLocator([-1, 0, 5, 10, 15, 20, 22]))
+
 
 	# Save OR show plots here, TODO: Improve this with more options
 	if save_location:
