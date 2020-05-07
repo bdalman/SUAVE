@@ -70,6 +70,9 @@ def compressibility_drag_total(state,settings,geometry):
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
+    #Mc = np.squeeze(Mc, axis=1)
+    #print(Mc)
+
     # Initialize result
     drag_breakdown.compressible = Data()
     
@@ -106,7 +109,7 @@ def compressibility_drag_total(state,settings,geometry):
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
         # dummy variables are unused function outputs
-        (drag99,dummy1,dummy2) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
+        (drag99,dummy1,dummy2) = drag_div(np.array([[0.99]] * len(Mc)),wing,cl,Sref_main)
         cdc_l = lift_wave_drag(conditions, 
                                   configuration, 
                                   wing, 
@@ -140,15 +143,12 @@ def compressibility_drag_total(state,settings,geometry):
 
     # For subsonic mach numbers, use drag divergence correlations to find the drag
     for k in wings.keys():
-        wing = wings[k]    
-        (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
-        #print(Mc.shape)
-        #print(cd_c.shape)
-        #print(a.shape)
-        #print('More changes at line 148!')
-        cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a
-        mcc[Mc <= 0.99]  = b
-        MDiv[Mc <= 0.99] = c
+        wing = wings[k]  
+        (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,cl[Mc <= 0.99],Sref_main)
+        # Believe I fixed the bug of this not working for subsonic: a,b,c needed to be boolean indexed as well. Not sure why they weren't?
+        cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a[Mc <= 0.99]
+        mcc[Mc <= 0.99]  = b[Mc <= 0.99]
+        MDiv[Mc <= 0.99] = c[Mc <= 0.99]
         drag_breakdown.compressible[wing.tag]    = Data()
         drag_breakdown.compressible[wing.tag].divergence_mach = MDiv
         cd_c_l = lift_wave_drag(conditions, 
