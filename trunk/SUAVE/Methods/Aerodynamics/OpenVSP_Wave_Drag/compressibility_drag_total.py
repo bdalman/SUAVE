@@ -143,8 +143,8 @@ def compressibility_drag_total(state,settings,geometry):
 
     # For subsonic mach numbers, use drag divergence correlations to find the drag
     for k in wings.keys():
-        wing = wings[k]  
-        (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,cl[Mc <= 0.99],Sref_main)
+        wing = wings[k] 
+        (a,b,c) = drag_div(Mc[Mc <= 0.99], wing, cl, Sref_main)
         # Believe I fixed the bug of this not working for subsonic: a,b,c needed to be boolean indexed as well. Not sure why they weren't?
         cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a[Mc <= 0.99]
         mcc[Mc <= 0.99]  = b[Mc <= 0.99]
