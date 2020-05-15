@@ -113,6 +113,7 @@ def VLM(conditions,settings,geometry):
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_2d(inv_root_beta)
@@ -164,30 +165,46 @@ def VLM(conditions,settings,geometry):
     Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
     Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1)) 
     
+
+    #### Custom Compressible Slope
+    PG_mach_slope = ( (1/np.sqrt(1.05**2-1)) - (1/np.sqrt(1.03**2-1)) )/( 1.05-1.03 ) 
+    PG_mach_105 = 1/np.sqrt(1.05**2 - 1)
+
     # lift coefficients on each wing   
-    machw             = np.tile(mach,len(wing_areas))     
+    machw             = np.tile(mach,len(wing_areas))   
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
-    CL_wing[machw>1]  = CL_wing[machw>1]*8 # supersonic lift off by a factor of 8 
+
+    compress_correct_wing = np.ones_like(machw)
+    compress_correct_wing[machw>1] = PG_mach_slope * (machw[machw>1] - 1.05) + PG_mach_105
+    compress_correct_wing[machw>1.05] = 1/np.sqrt(machw[machw>1.05]**2 - 1)
+    CL_wing[machw>1]  = CL_wing[machw>1] * compress_correct_wing[machw>1]  #*8 # supersonic lift off by a factor of 8 
     
     # drag coefficients on each wing  
     Di_wing           = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CDi_wing          = Di_wing/(0.5*wing_areas)
-    CDi_wing[machw>1] = CDi_wing[machw>1]*2   # supersonic drag off by a factor of 2 
+    CDi_wing[machw>1] = CDi_wing[machw>1] * compress_correct_wing[machw>1]  #*2   # supersonic drag off by a factor of 2 
     
     # Calculate each spanwise set of Cls and Cds
     cl_y        = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     cdi_y       = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS 
+
+
+    ## Compress Correct Total
+    compress_correct = np.ones_like(mach)
+    compress_correct[mach>1] = PG_mach_slope * (mach[mach>1] - 1.05) + PG_mach_105
+    compress_correct[mach>1.05] = 1/np.sqrt(mach[mach>1.05]**2 - 1)
+
             
     # total lift and lift coefficient
     L           = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
     CL          = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
-    CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8 
+    CL[mach>1]  = CL[mach>1] * compress_correct[mach>1]#*8   # supersonic lift off by a factor of 8 
     
     # total drag and drag coefficient
     D           =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
     CDi         = D/(0.5*Sref)  
-    CDi[mach>1] = CDi[mach>1]*2 # supersonic drag off by a factor of 2 
+    CDi[mach>1] = CDi[mach>1] * compress_correct[mach>1]  #*2 # supersonic drag off by a factor of 2 
     
     # pressure coefficient
     U_tot       = np.sqrt((1+u)*(1+u) + v*v + w*w)
