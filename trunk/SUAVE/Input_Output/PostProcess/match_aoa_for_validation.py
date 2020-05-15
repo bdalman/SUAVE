@@ -68,6 +68,7 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
     for i in range(0, num_sections):
         state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
 
+
         #print(state.conditions.aerodynamics.angle_of_attack)
 
         new_results = aero_analyses.evaluate( state )
@@ -79,9 +80,15 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
 
         #print(breakdown)
 
-        AOA[i] = target_AOA[i] * Units.deg   #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
+        AOA[i] = target_AOA[i] * Units.deg  #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
         CL[i] = new_results.lift.total
         CD[i] = new_results.drag.total
+
+        #print(new_results.drag.keys())
+        print(new_results.lift)
+        # if i == num_sections-1:
+        #     print(breakdown)
+
         if CM_FLAG ==1:
             CM[i] = stab_analyses.surrogates.moment_coefficient.predict([ np.array([ target_AOA[i] * Units.deg, target_mach ]) ])
 

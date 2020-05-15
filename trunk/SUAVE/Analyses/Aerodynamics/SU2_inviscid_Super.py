@@ -69,6 +69,7 @@ class SU2_inviscid_Super(Aerodynamics):
         self.settings.processors         = 1
         self.settings.maximum_iterations = 1500
         self.settings.CFD_failed_flag    = False
+        self.settings.physical_problem   = 'Euler'
 
         # Conditions table, used for surrogate model training
         self.training = Data()        

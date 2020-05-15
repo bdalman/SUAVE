@@ -152,15 +152,13 @@ class SU2_Euler_Super(Markup):
             nproc = comm.Get_size()
             myrank = comm.Get_rank()
             #status = MPI.Status()
-
-            print('Uncomment these lines in SU2_Euler_Super when found parasite drag!')
             
             
-            #write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             
-            #write_geo_file(tag)
-            #print('Finished writing geo file for: ', tag)
-            #mesh_geo_file(tag)
+            write_geo_file(tag)
+            print('Finished writing geo file for: ', tag)
+            mesh_geo_file(tag)
             
 
 
