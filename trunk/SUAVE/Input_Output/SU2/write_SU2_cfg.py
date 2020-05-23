@@ -32,7 +32,10 @@ def write_SU2_cfg(tag,SU2_settings):
     """      
     
     ref_area = SU2_settings.reference_area
+    print('Ref area and x_mom_origin overwritten in write_SU2_cfg!')
+    ref_area = 4.0  #8 in^2 / 2
     x_mom_ori = SU2_settings.x_moment_origin
+    x_mom_ori = 1.47125
     ref_length = x_mom_ori * 4
     mach     = SU2_settings.mach_number
     AOA      = SU2_settings.angle_of_attack
@@ -91,7 +94,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('CFL_ADAPT = YES\n\n')
     f.write('CFL_ADAPT_PARAM = ( 1.5, 0.5, 1.0, 100.0 )\n\n')
     f.write('RK_ALPHA_COEFF = ( 0.66667, 0.66667, 1.000000 )\n\n')
-    f.write('INNER_ITER ='+str(int(iters)) +'\n\n')
+    f.write('EXT_ITER ='+str(int(iters)) +'\n\n')
     f.write('LINEAR_SOLVER = FGMRES\n\n')
     f.write('LINEAR_SOLVER_ERROR = 1E-6\n\n')
     f.write('LINEAR_SOLVER_ITER = 2\n\n')
@@ -136,22 +139,25 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('CAUCHY_FUNC_FLOW = LIFT\n\n')
     
     # Input/Output
-    f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
-    f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
-    f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
+    ##f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
+    ##f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
+    #f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
+    f.write('MESH_FILENAME = ' + 'DeltaWing_volMesh' + '.su2\n\n')
+    print('Hardcoded su2 mesh name into write cfg!')
+
     f.write('MESH_OUT_FILENAME = mesh_out.su2\n\n')
-    f.write('SOLUTION_FILENAME = solution_flow.dat\n\n')
+    f.write('SOLUTION_FLOW_FILENAME = solution_flow.dat\n\n')
     f.write('SOLUTION_ADJ_FILENAME = solution_adj.dat\n\n')
     f.write('MESH_FORMAT = SU2\n\n')
     f.write('OUTPUT_FORMAT = PARAVIEW\n\n')
     f.write('CONV_FILENAME = ' + tag + '_history\n\n')
     f.write('BREAKDOWN_FILENAME = ' + tag + '_forces_breakdown.dat\n\n')
-    f.write('RESTART_FILENAME = ' + tag + '_restart_flow.dat\n\n')
+    f.write('RESTART_FLOW_FILENAME = ' + tag + '_restart_flow.dat\n\n')
     f.write('RESTART_ADJ_FILENAME = restart_adj.dat\n\n')
-    f.write('VOLUME_FILENAME = ' + tag + '_flow\n\n')
+    f.write('VOLUME_FLOW_FILENAME = ' + tag + '_flow\n\n')
     f.write('VOLUME_ADJ_FILENAME = adjoint\n\n')
     f.write('GRAD_OBJFUNC_FILENAME = of_grad.dat\n\n')
-    f.write('SURFACE_FILENAME = ' + tag + '_surface_flow\n\n')
+    f.write('SURFACE_FLOW_FILENAME = ' + tag + '_surface_flow\n\n')
     f.write('SURFACE_ADJ_FILENAME = surface_adjoint\n\n')
     f.write('WRT_SOL_FREQ = 1000\n\n')
     f.write('WRT_CON_FREQ = 1\n\n')
