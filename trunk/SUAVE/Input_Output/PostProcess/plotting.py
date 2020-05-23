@@ -201,8 +201,8 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 # Helper functions
 
 def pick_marker(index):
-	#marker_types = np.array(['ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
-	marker_types = np.array(['bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
+	marker_types = np.array(['ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
+	#marker_types = np.array(['bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
 
 	try:
 		marker_selection = str(marker_types[index])
