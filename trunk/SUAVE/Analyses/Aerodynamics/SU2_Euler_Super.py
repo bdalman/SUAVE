@@ -148,17 +148,18 @@ class SU2_Euler_Super(Markup):
 
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            comm = MPI.COMM_WORLD
-            nproc = comm.Get_size()
-            myrank = comm.Get_rank()
+            # comm = MPI.COMM_WORLD
+            # nproc = comm.Get_size()
+            # myrank = comm.Get_rank()
             #status = MPI.Status()
             
             
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            print('Meshing disabled in SU2 Euler Super script while using existing mesh')
+            # write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             
-            write_geo_file(tag)
-            print('Finished writing geo file for: ', tag)
-            mesh_geo_file(tag)
+            # write_geo_file(tag)
+            # print('Finished writing geo file for: ', tag)
+            # mesh_geo_file(tag)
             
 
 
