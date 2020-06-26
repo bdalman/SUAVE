@@ -12,6 +12,11 @@ from SUAVE.Core import Units
 import numpy as np
 import matplotlib.pyplot as plt
 
+from matplotlib import rc
+
+rc('font', **{'family':'serif','serif':['Times']})
+rc('text', usetex=True)
+
 #Set plot style at the top
 #Good plot styles: seaborn, ggplot, classic(ok)
 plt.style.use('default')
