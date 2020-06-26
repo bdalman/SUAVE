@@ -12,8 +12,8 @@ from SUAVE.Core import Units
 import numpy as np
 
 
-def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_mach=1):
-    """ Takes a list of input angles and the mission data structure, reruns the aerodynamics for the given AoAs 
+def mach_and_aoa_sweep(analyses, results, mach_targets, aoa_target):
+    """ Takes a list of input machs, an AoA, and the mission data structure, reruns the aerodynamics for the given AoA and machs 
     
         Assumptions:
         Passed a mission data structure with single_point mission segments to be used for running the new aerodynamics
@@ -23,7 +23,8 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
         Inputs:
         	mission
        	    	single_point_segments
-        	target_aoas                       [deg]
+        	target_aoa                       [deg]
+            mach_targets                     [unitless]
             CM_FLAG ---- 0 for no
                          1 for yes
 
@@ -45,31 +46,23 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
 
     aero_analyses = analyses.configs.base.aerodynamics
     state = results.segments.single_point_1.state
-    target_AOA = aoa_targets
-    num_sections = len(target_AOA)
+    target_AOA = aoa_target
+    target_machs = mach_targets
 
-    print('Passed in target AOA: ', target_AOA)
+    num_sections = len(target_machs)
 
-    #print(aero_analyses)
-    #print(breakdown)
-
-
-    if CM_FLAG ==1:
-        stab_analyses = analyses.configs.base.stability
+    print('Passed in target Machs: ', target_machs)
 
     # Initialize results variables you care about for plotting
 
     AOA = np.zeros(num_sections)
     CL  = np.zeros(num_sections)
     CD  = np.zeros(num_sections)
-    if CM_FLAG ==1:
-        CM = np.zeros(num_sections)
+
 
     for i in range(0, num_sections):
-        state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
-
-
-        #print(state.conditions.aerodynamics.angle_of_attack)
+        state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA]]) * Units.deg
+        state.conditions.freestream.mach_number         = np.array([[target_machs[i]]])
 
         new_results = aero_analyses.evaluate( state )
 
@@ -80,23 +73,18 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
 
         #print(breakdown)
 
-        AOA[i] = target_AOA[i] * Units.deg  #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
+        AOA[i] = target_AOA * Units.deg  #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
         CL[i] = new_results.lift.total
         CD[i] = new_results.drag.total
 
-        #print(new_results.drag)
-        #print(new_results.lift)
+        #print(new_results.drag.keys())
+        #print(new_results.drag.compressibility)
         # if i == num_sections-1:
         #     print(breakdown)
 
-        if CM_FLAG ==1:
-            CM[i] = stab_analyses.surrogates.moment_coefficient.predict([ np.array([ target_AOA[i] * Units.deg, target_mach ]) ])
 
-    if CM_FLAG==0:
-        CM = np.zeros(num_sections)
-        return [AOA,CL,CD,CM]
-    elif CM_FLAG==1:
-        return [AOA,CL,CD,CM]
+
+    return [AOA,CL,CD]
 
     
 

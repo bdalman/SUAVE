@@ -14,7 +14,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Performance
-def size_mission_accel_for_cl(mission,target_CLs, results=None):
+def size_mission_accel_for_cl(mission,target_CLs, results=None, tol=0.002):
     """Given a mission series with single points, and target CLs, this function recalculates accels of the single points to achieve the target CLs
 
     Assumptions:
@@ -54,7 +54,7 @@ def size_mission_accel_for_cl(mission,target_CLs, results=None):
     actual_cd         = np.zeros(num_sections)
 
     #Variables to be used later
-    tol      = 0.002
+    #tol      = 0.002
     iteration = 0
     maxIter   = 50
     tag                 = 'single_point_'
