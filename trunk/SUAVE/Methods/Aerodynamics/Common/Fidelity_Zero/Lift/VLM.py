@@ -175,9 +175,9 @@ def VLM(conditions,settings,geometry):
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
 
-    compress_correct_wing = np.ones_like(machw)
-    compress_correct_wing[machw>1] = PG_mach_slope * (machw[machw>1] - 1.05) + PG_mach_105
-    compress_correct_wing[machw>1.05] = 1/np.sqrt(machw[machw>1.05]**2 - 1)
+    # compress_correct_wing = np.ones_like(machw)
+    # compress_correct_wing[machw>1] = PG_mach_slope * (machw[machw>1] - 1.05) + PG_mach_105
+    # compress_correct_wing[machw>1.05] = 1/np.sqrt(machw[machw>1.05]**2 - 1)
     #CL_wing[machw>1]  = CL_wing[machw>1] * compress_correct_wing[machw>1]  #*8 # supersonic lift off by a factor of 8 
     CL_wing[machw>1]  = CL_wing[machw>1] #*8 # supersonic lift off by a factor of 8 
     
