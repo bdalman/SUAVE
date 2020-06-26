@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2016, E. Botero
 # Modified: Jan 2017, T. MacDonald
+# Modified: May 2020, B. Dalman
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -170,7 +171,7 @@ class SU2_inviscid_Super(Aerodynamics):
         sup_trans_spline = Cubic_Spline_Blender(hsup_min,hsup_max) 
         h_sup            = lambda M:sup_trans_spline.compute(M) 
 
-        print('Turn on line 145 and 181 in SU2_invisc_super when modelling fuse again!')
+        print('Turn on line 175 and 211 in SU2_invisc_super when modelling fuse again for CM calc!')
         #vehicle_length = geometry.fuselages['fuselage'].lengths.total        
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
@@ -179,8 +180,8 @@ class SU2_inviscid_Super(Aerodynamics):
         CL_surrogate_sup          = surrogates.lift_coefficient_supersonic  
         CL_surrogate_trans        = surrogates.lift_coefficient_transonic
         CDinvisc_surrogate_sub         = surrogates.drag_coefficient_subsonic  
-        CDinviscnvisc_surrogate_sup         = surrogates.drag_coefficient_supersonic  
-        CDinviscnvisc_surrogate_trans       = surrogates.drag_coefficient_transonic
+        CDinvisc_surrogate_sup         = surrogates.drag_coefficient_supersonic  
+        CDinvisc_surrogate_trans       = surrogates.drag_coefficient_transonic
 
 
         # Inviscid lift
@@ -200,9 +201,9 @@ class SU2_inviscid_Super(Aerodynamics):
         # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_drag[ii] = h_sub(mach[ii])*CDinviscnvisc_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
-                          (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinviscnvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
-                          (1- h_sup(mach[ii]))*CDinviscnvisc_surrogate_sup(AoA[ii],mach[ii],grid=False)
+            inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
+                          (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
+                          (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup(AoA[ii],mach[ii],grid=False)
       
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
@@ -559,9 +560,9 @@ class SU2_inviscid_Super(Aerodynamics):
 
         # Plot the surrogate
 
-        # Resets plot to whatever your actual surrogate range is, plus 100% on either end
-        range_aoa = np.absolute(xy[0,0] - xy[-1,0]) * 1
-        range_mach = np.absolute(xy[0,1] - xy[-1,1]) * 1
+        # Resets plot to whatever your actual surrogate range is, plus 50% on either end
+        range_aoa = np.absolute(xy[0,0] - xy[-1,0]) * 0.5
+        range_mach = np.absolute(xy[0,1] - xy[-1,1]) * 0.5
 
         low_aoa = (xy[0,0] - range_aoa) / Units.deg
         high_aoa = (xy[-1,0] + range_aoa) / Units.deg
@@ -590,7 +591,7 @@ class SU2_inviscid_Super(Aerodynamics):
             
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
+        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=21)
         #plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
         plt.scatter(xy[:,0]/Units.deg,xy[:,1])

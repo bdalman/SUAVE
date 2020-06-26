@@ -73,6 +73,9 @@ def parasite_drag_fuselage(state,settings,geometry):
     Tc  = freestream.temperature    
     re  = freestream.reynolds_number
 
+    # print('Overwriting re in fuselage for Vincenti!')
+    # re = 0.75e7
+
     # reynolds number
     Re_fus = re*(l_fus)
     

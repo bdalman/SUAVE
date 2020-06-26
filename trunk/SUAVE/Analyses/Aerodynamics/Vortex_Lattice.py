@@ -641,7 +641,7 @@ class Vortex_Lattice(Aerodynamics):
             mach_grid_points = self.training.Mach_grid_points
 
             fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
+            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=21)
             cbar = plt.colorbar()
             plt.scatter(aoa_grid_points[:], mach_grid_points[:])
             plt.xlabel('Angle of Attack (deg)')
@@ -650,9 +650,9 @@ class Vortex_Lattice(Aerodynamics):
 
             # Stub for plotting drag if implemented:
 
-            drag_levels = np.linspace(-0.1,0.5,41)
+            drag_levels = np.linspace(0,0.2,41)
 
-            fig = plt.figure('Coefficient of Drag Surrogate Plot')    
+            fig = plt.figure('Coefficient of Induced Drag Surrogate Plot')    
             plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=drag_levels)
             cbar = plt.colorbar()
             plt.scatter(aoa_grid_points[:], mach_grid_points[:])
@@ -661,7 +661,6 @@ class Vortex_Lattice(Aerodynamics):
             cbar.ax.set_ylabel('Coefficient of Drag')
 
             plt.show()
-            print(breakdown)
 
             self.settings.plot_surrogate = False
 

@@ -68,6 +68,9 @@ def parasite_drag_propulsor(state,settings,geometry):
     Tc = freestream.temperature    
     re = freestream.reynolds_number
 
+    #print('Overwriting re in propulsor for Vincenti!')
+    #re = 0.75e7
+
     # reynolds number
     Re_prop = re*l_prop
     

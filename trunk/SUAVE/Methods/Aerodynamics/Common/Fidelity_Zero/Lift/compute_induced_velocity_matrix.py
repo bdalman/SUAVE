@@ -44,7 +44,7 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
     mach[mach==1]         = 1.001
-    
+
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
@@ -131,10 +131,10 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
 
     # compute Mach Cone Matrix
     MCM      = np.ones_like(C_AB_bv)
-    MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
+    #MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
     VD.MCM = MCM 
     n_cp     = n_w*n_cw*n_sw 
-    
+
     # multiply by mach cone 
     C_AB_bv     = C_AB_bv    * MCM
     C_AB_34_ll  = C_AB_34_ll * MCM

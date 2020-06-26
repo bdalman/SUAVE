@@ -64,12 +64,14 @@ class SU2_Euler_Super(Markup):
         # Correction factors
         settings = self.settings
         settings.trim_drag_correction_factor        = 1.02
-        settings.wing_parasite_drag_form_factor     = 1.1
-        settings.fuselage_parasite_drag_form_factor = 2.3
+        settings.wing_parasite_drag_form_factor     = 1.0 #1.1 Since CFD should capture the form/pressure drag better, don't double count
+        settings.fuselage_parasite_drag_form_factor = 1.0 #2.3 Same as above. THIS CHANGE ASSUMES NO SEPARATION ON WING/FUSE, AND NO "SUPERVELOCITIES" AFFECTING CF
         settings.oswald_efficiency_factor           = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        settings.begin_drag_rise_mach_number        = 0.95
+        settings.end_drag_rise_mach_number          = 1.2
         settings.maximum_lift_coefficient           = np.inf 
         settings.half_mesh_flag                     = True
         settings.parallel                           = False
@@ -96,9 +98,9 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        print('Propulsor and pylon parasite drag disabled for Euler Super!')
-        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        print('Pylon parasite drag disabled for Euler Super!')
+        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
         compute.drag.parasite.total                = Common.Drag.parasite_total
 

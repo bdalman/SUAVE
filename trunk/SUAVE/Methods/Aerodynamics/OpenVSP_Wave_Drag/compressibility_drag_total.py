@@ -63,7 +63,7 @@ def compressibility_drag_total(state,settings,geometry):
     fuselages      = geometry.fuselages
 
 
-    print('Warning: Calculating Compress_drag w/o propulsors in OpenVSP Methods!')  #Commented these and line 99 out
+    #print('Warning: Calculating Compress_drag w/o propulsors in OpenVSP Methods!')  #Commented these and line 99 out. Don't think it effects calc though
     #propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     #propulsor      = geometry.propulsors[propulsor_name]
 
@@ -97,7 +97,7 @@ def compressibility_drag_total(state,settings,geometry):
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general 
         
-        print('Warning: fuselage is turned off in VSP compressibility drag total')
+        print('Warning: fuselage is turned off in VSP compressibility drag total - I dont think it does anything though!')
         #main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
