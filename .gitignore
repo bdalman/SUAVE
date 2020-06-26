@@ -77,3 +77,13 @@ ide/Wing/SUAVE.wpr
 /doc/latex
 
 !/doc/suave_logo.png
+
+
+# AVL
+
+*.run
+
+
+# Regression Outputs
+
+sizing_outputs.txt
