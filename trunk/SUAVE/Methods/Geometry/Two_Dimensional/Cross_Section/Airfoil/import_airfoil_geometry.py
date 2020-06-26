@@ -113,7 +113,7 @@ def  import_airfoil_geometry(airfoil_geometry_files):
             for line_count , line in enumerate(data_block): 
                 #check for line which starts with 0., which should be the split between upper and lower in selig
                 line_check = data_block[line_count].strip()
-                if float(line_check.split()[0]) == 0.:
+                if float(line_check.split()[0]) < 0.0001:
                     x_up_surf_rev.append(float(data_block[line_count].strip().split()[0])) 
                     y_up_surf_rev.append(float(data_block[line_count].strip().split()[1]))
 
