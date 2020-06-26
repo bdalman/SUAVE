@@ -32,10 +32,10 @@ def write_SU2_cfg(tag,SU2_settings):
     """      
     
     ref_area = SU2_settings.reference_area
-    print('Ref area and x_mom_origin overwritten in write_SU2_cfg!')
-    ref_area = 4.0  #8 in^2 / 2
+    #print('Ref area and x_mom_origin, and mesh location overwritten in write_SU2_cfg!')
+    #ref_area = 4.0  #8 in^2 / 2
     x_mom_ori = SU2_settings.x_moment_origin
-    x_mom_ori = 1.47125
+    #x_mom_ori = 1.47125
     ref_length = x_mom_ori * 4
     mach     = SU2_settings.mach_number
     AOA      = SU2_settings.angle_of_attack
@@ -43,8 +43,7 @@ def write_SU2_cfg(tag,SU2_settings):
 
     physical_prob = SU2_settings.physical_prob  # Need to write these into the defaults EULER
     turb_model = SU2_settings.turb_model
-    
-    
+
     filename = tag + '.cfg'
     f = open(filename,mode='w')
 
@@ -141,9 +140,10 @@ def write_SU2_cfg(tag,SU2_settings):
     # Input/Output
     ##f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
     ##f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
-    #f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
-    f.write('MESH_FILENAME = ' + 'DeltaWing_volMesh' + '.su2\n\n')
-    print('Hardcoded su2 mesh name into write cfg!')
+    f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
+    #f.write('MESH_FILENAME = ' + 'DeltaWing_thinAF' + '.su2\n\n')
+    #f.write('MESH_FILENAME = ' + 'DeltaWing_volMesh' + '.su2\n\n')
+    #print('Hardcoded su2 mesh name into write cfg!')
 
     f.write('MESH_OUT_FILENAME = mesh_out.su2\n\n')
     f.write('SOLUTION_FLOW_FILENAME = solution_flow.dat\n\n')
