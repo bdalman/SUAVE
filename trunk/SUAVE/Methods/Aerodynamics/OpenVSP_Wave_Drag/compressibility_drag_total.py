@@ -174,7 +174,6 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown.compressible.total_volume = cd_c_v
     drag_breakdown.compressible.total_lift   = cd_c_l
     
-    #print('Printing compressible drag: ', drag_breakdown)
     return cd_c
 
 
