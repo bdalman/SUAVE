@@ -71,7 +71,8 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     # Instantiate the problem and set objective
 
     try:
-        import pyoptsparse.pyoptsparse as pyOpt
+        #import pyoptsparse.pyoptsparse as pyOpt
+        import pyoptsparse as pyOpt
     except:
         raise ImportError('No version of pyOptsparse found')
         
