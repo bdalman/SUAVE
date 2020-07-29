@@ -1,4 +1,3 @@
-## @ingroup Analyses-Stability
 # AVL.py
 #
 # Created:  Apr 2017, M. Clarke 
@@ -112,6 +111,7 @@ class AVL(Stability):
         # Initialize quantities
         self.configuration                          = Data()    
         self.geometry                               = Data()
+        self.atmosphere                             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
                                                     
         # Regression Status      
         self.keep_files                             = False
@@ -246,8 +246,9 @@ class AVL(Stability):
         trim_aircraft = self.settings.trim_aircraft  
         AoA           = training.angle_of_attack
         Mach          = training.Mach
-        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data     = atmosphere.compute_values(altitude = 0.0)         
+        #atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmosphere    = self.atmosphere
+        atmo_data     = atmosphere.compute_values(altitude = 0.0)        
                       
         CM            = np.zeros((len(AoA),len(Mach)))
         Cm_alpha      = np.zeros_like(CM)
@@ -389,7 +390,7 @@ class AVL(Stability):
           batch_file
           deck_file
           cases
-        """           
+        """      
         
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
@@ -443,6 +444,7 @@ class AVL(Stability):
         for case in cases:
             cases[case].stability_and_control.number_control_surfaces = num_cs
             cases[case].stability_and_control.control_surface_names   = cs_names
+            cases[case].stability_and_control.control_surface_functions = cs_functions
         self.current_status.cases        = cases  
         
        # write casefile names using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 

@@ -47,3 +47,4 @@ class Segment(Lofted_Body.Segment):
         self.vsp_data           = Data()
         self.vsp_data.xsec_id   = ''       # OpenVSP XSec ID such as 'MWLKSGTGDD'
         self.vsp_data.shape     = ''
+        self.angle              = None

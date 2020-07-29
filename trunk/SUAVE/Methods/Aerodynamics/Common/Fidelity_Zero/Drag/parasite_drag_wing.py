@@ -83,14 +83,16 @@ def parasite_drag_wing(state,settings,geometry):
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     
 
-    print('Overiding freestream Re in wings!')
-
+    #print('Overiding freestream Re in wings for Vincenti!')
+    #print('Using default Re in parasite_drag_wing!')
     #print('Freestream Re (not used):', re)
+    #re =  0.2453/0.367926 * 6.578e6
     #print('Mach: ', Mc)
     #print('Temp: ', Tc)
+    #re = 0.75e7
     #re = 2.414e7
-    re = (5.657/12) * 2e6  # This is the freestream re for all briggs cases
-    Tc = 180
+    #re = (5.657/12) * 2e6  # This is the freestream re for all briggs cases
+    #Tc = 180
     #print(re)
     
     # if wing has segments, compute and sum parasite drag of each segment

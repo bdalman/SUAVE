@@ -67,13 +67,46 @@ class Vortex_Lattice(Aerodynamics):
         self.settings                                = Data()
         self.settings.number_panels_spanwise         = 10
         self.settings.number_panels_chordwise        = 2 
-        self.settings.vortex_distribution            = Data()   
+        self.settings.vortex_distribution            = Data()
+        self.settings.plot_surrogate                 = True   
         
         # conditions table, used for surrogate model training
         self.training                                = Data()    
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg 
         self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
-                                                                  1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T           
+                                                                  1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T    
+        self.training.AoA_grid_points                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.,\
+                                                                -5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]) * Units.deg
+        self.training.Mach_grid_points               = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,\
+                                                                0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,\
+                                                                0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2,\
+                                                                0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3,\
+                                                                0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,\
+                                                                0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75,\
+                                                                0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,\
+                                                                0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,\
+                                                                1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3,\
+                                                                1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35,\
+                                                                1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,\
+                                                                2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,\
+                                                                2.25, 2.25, 2.25, 2.25, 2.25, 2.25, 2.25, 2.25,\
+                                                                2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5,\
+                                                                3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0,\
+                                                                3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5]])       
         self.training.lift_coefficient_sub           = None
         self.training.lift_coefficient_sup           = None
         self.training.wing_lift_coefficient_sub      = None
@@ -469,7 +502,7 @@ class Vortex_Lattice(Aerodynamics):
         sub_sup_split  = np.where(Mach < 1.0)[0][-1] + 1 
         mach_data_sub  = training.Mach[0:sub_sup_split,0]
         mach_data_sup  = training.Mach[sub_sup_split:,0]
-        CL_data_sub    = training.lift_coefficient_sub   
+        CL_data_sub    = training.lift_coefficient_sub   # Rows are mach numbers, columns are AoAs
         CL_data_sup    = training.lift_coefficient_sup      
         CDi_data_sub   = training.drag_coefficient_sub         
         CDi_data_sup   = training.drag_coefficient_sup 
@@ -477,6 +510,10 @@ class Vortex_Lattice(Aerodynamics):
         CL_w_data_sup  = training.wing_lift_coefficient_sup     
         CDi_w_data_sub = training.wing_drag_coefficient_sub         
         CDi_w_data_sup = training.wing_drag_coefficient_sup 
+
+        # print(Mach)
+        # print(AoA_data)
+        # print(breakdown)
          
         # transonic regime   	                             
         CL_data_trans        = np.zeros((len(mach_data_sub),3))	      
@@ -543,6 +580,90 @@ class Vortex_Lattice(Aerodynamics):
         surrogates.wing_drag_coefficient_sub   = CDi_w_surrogates_sub  
         surrogates.wing_drag_coefficient_sup   = CDi_w_surrogates_sup  
         surrogates.wing_drag_coefficient_trans = CDi_w_surrogates_trans
+
+
+
+
+
+        # Plotting results of surrogate to test
+
+        hsub_min    = self.hsub_min
+        hsub_max    = self.hsub_max
+        hsup_min    = self.hsup_min
+        hsup_max    = self.hsup_max
+
+
+        # Spline for Subsonic-to-Transonic-to-Supesonic Regimes
+        sub_trans_spline = Cubic_Spline_Blender(hsub_min,hsub_max)
+        h_sub            = lambda M:sub_trans_spline.compute(M)          
+        sup_trans_spline = Cubic_Spline_Blender(hsup_min,hsup_max) 
+        h_sup            = lambda M:sup_trans_spline.compute(M) 
+
+
+
+
+        if self.settings.plot_surrogate:
+            # Resets plot to whatever your actual surrogate range is, plus 50% on either end
+            range_aoa = np.absolute(AoA_data[0] - AoA_data[-1]) * 0.5
+            range_mach = np.absolute(Mach[0] - Mach[-1]) * 0.5
+
+            low_aoa = (AoA_data[0] - range_aoa) / Units.deg
+            high_aoa = (AoA_data[-1] + range_aoa) / Units.deg
+
+            low_mach = Mach[0] - range_mach
+            high_mach = Mach[-1] + range_mach
+
+            #Adaptive plotting range
+            AoA_points = np.linspace(low_aoa,high_aoa,100)*Units.deg
+            mach_points = np.linspace(low_mach,high_mach,100)
+
+            AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
+
+            CL_sur = np.zeros(np.shape(AoA_mesh))
+            CD_sur = np.zeros(np.shape(AoA_mesh))
+
+            for jj in range(len(AoA_points)):
+                for ii in range(len(mach_points)):
+                    CL_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CL_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False) +\
+                     ( h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ) ) * CL_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj])) +\
+                      (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup(AoA_mesh[ii,jj],mach_mesh[ii,jj],grid=False)
+
+                    CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDi_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)   +\
+                          (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDi_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
+                          (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDi_surrogate_sup(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)
+
+
+
+
+            import matplotlib.pyplot as plt
+
+            aoa_grid_points = self.training.AoA_grid_points / Units.deg
+            mach_grid_points = self.training.Mach_grid_points
+
+            fig = plt.figure('Coefficient of Lift Surrogate Plot')    
+            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=21)
+            cbar = plt.colorbar()
+            plt.scatter(aoa_grid_points[:], mach_grid_points[:])
+            plt.xlabel('Angle of Attack (deg)')
+            plt.ylabel('Mach Number')
+            cbar.ax.set_ylabel('Coefficient of Lift')
+
+            # Stub for plotting drag if implemented:
+
+            drag_levels = np.linspace(0,0.2,41)
+
+            fig = plt.figure('Coefficient of Induced Drag Surrogate Plot')    
+            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=drag_levels)
+            cbar = plt.colorbar()
+            plt.scatter(aoa_grid_points[:], mach_grid_points[:])
+            plt.xlabel('Angle of Attack (deg)')
+            plt.ylabel('Mach Number')
+            cbar.ax.set_ylabel('Coefficient of Drag')
+
+            plt.show()
+
+            self.settings.plot_surrogate = False
+
         
         return
 

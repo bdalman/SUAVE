@@ -634,12 +634,14 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         heights = []
         x_poses = []
         z_poses = []
+        angles  = []
         segs = fuselage.Segments
         for seg_name in segs:
             widths.append(segs[seg_name].width)
             heights.append(segs[seg_name].height)
             x_poses.append(segs[seg_name].percent_x_location)
             z_poses.append(segs[seg_name].percent_z_location)
+            angles.append(segs[seg_name].angle)
             
         end_ind = num_segs-1
     
@@ -726,8 +728,18 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
-            vsp.Update()             
-            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
+            vsp.Update()
+            if angles[i] == None:             
+                set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)
+            else:
+                vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)
+                vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(i+1),angles[i])
+                vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(i+1),0.75)
+                vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_"+str(i+1),angles[i])
+                vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_"+str(i+1),0.75)   
+                vsp.SetParmVal(fuse_id,"RightLAngle","XSec_"+str(i+1),angles[i])
+                vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(i+1),0.75) 
+
             
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])

@@ -59,7 +59,7 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         # correction factors
         settings =  self.settings
         settings.fuselage_lift_correction           = 1.14
-        settings.trim_drag_correction_factor        = 1.00      #Trim correction changed from 1.02 to 1.00 for small delta wing
+        settings.trim_drag_correction_factor        = 1.02      
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3       #Very small change in fuse para drag
         settings.aircraft_span_efficiency_factor    = 0.78      #Seems to not effect supersonic missions
@@ -70,10 +70,16 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.maximum_lift_coefficient           = np.inf
         settings.number_slices                      = 20
         settings.number_rotations                   = 30
+        settings.begin_drag_rise_mach_number        = 0.95
+        settings.end_drag_rise_mach_number          = 1.2
+
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 10
         settings.number_panels_chordwise = 8
+        settings.use_surrogate                      = True 
+        settings.include_slipstream_effect          = False 
+        settings.plot_vortex_distribution           = False
         
         
         # build the evaluation process
@@ -94,8 +100,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         #print('Warning: Propulsor parasite drag turned off in Analyses_Supersonic_OpenVSP_Wave_Drag')
-        #compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        #compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
@@ -132,8 +138,14 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
             os.remove('volume_drag_data_' + self.geometry.tag + '.npy')  
         except:
             pass
+
+        use_surrogate             = self.settings.use_surrogate
+        include_slipstream_effect = self.settings.include_slipstream_effect
+        vortex_distribution_flag  = self.settings.plot_vortex_distribution 
+        n_sw                      = self.settings.number_panels_spanwise    
+        n_cw                      = self.settings.number_panels_chordwise  
         
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate, vortex_distribution_flag, n_sw, n_cw, include_slipstream_effect)
         
     finalize = initialize        

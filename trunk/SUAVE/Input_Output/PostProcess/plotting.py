@@ -12,12 +12,17 @@ from SUAVE.Core import Units
 import numpy as np
 import matplotlib.pyplot as plt
 
+from matplotlib import rc
+
+rc('font', **{'family':'serif','serif':['Times']})
+rc('text', usetex=True)
+
 #Set plot style at the top
 #Good plot styles: seaborn, ggplot, classic(ok)
 plt.style.use('default')
 
 
-def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=None, marker_flag=False, save_location=None):
+def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=None, marker_flag=False, save_location=None, limits=None):
 	""" Function that plots my data in whatever format is most appropriate
 
         Assumptions:
@@ -61,6 +66,8 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 				marker = marker_flag
 			else:
 				marker = pick_marker(i)
+
+			marker += '-'
 			plt.plot(x[:,i], y[:,i], marker, label=str(labels[i]))
 		plt.legend(loc='best')
 	else:
@@ -83,6 +90,16 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 	plt.grid(True)
 
 	plt.axis() # TODO: Implement bound setting
+
+	if not limits==None:
+		ax = plt.axes()
+
+		ax.set_xlim(limits[0],limits[1])
+		ax.set_ylim(limits[3],limits[4])
+		#ax.grid(False)
+		ax.xaxis.set_major_locator(plt.MultipleLocator(limits[2]))
+		ax.yaxis.set_major_locator(plt.MultipleLocator(limits[5]))
+
 
 	# Save OR show plots here, TODO: Improve this with more options
 	if save_location:
@@ -190,6 +207,7 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 
 def pick_marker(index):
 	marker_types = np.array(['ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
+	#marker_types = np.array(['bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
 
 	try:
 		marker_selection = str(marker_types[index])

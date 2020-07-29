@@ -63,7 +63,7 @@ def compressibility_drag_total(state,settings,geometry):
     fuselages      = geometry.fuselages
 
 
-    print('Warning: Calculating Compress_drag w/o propulsors in OpenVSP Methods!')  #Commented these and line 99 out
+    #print('Warning: Calculating Compress_drag w/o propulsors in OpenVSP Methods!')  #Commented these and line 99 out. Don't think it effects calc though
     #propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     #propulsor      = geometry.propulsors[propulsor_name]
 
@@ -97,7 +97,7 @@ def compressibility_drag_total(state,settings,geometry):
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general 
         
-        print('Warning: fuselage is turned off in VSP compressibility drag total')
+        print('Warning: fuselage is turned off in VSP compressibility drag total - I dont think it does anything though!')
         #main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
@@ -143,8 +143,8 @@ def compressibility_drag_total(state,settings,geometry):
 
     # For subsonic mach numbers, use drag divergence correlations to find the drag
     for k in wings.keys():
-        wing = wings[k]  
-        (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,cl[Mc <= 0.99],Sref_main)
+        wing = wings[k] 
+        (a,b,c) = drag_div(Mc[Mc <= 0.99], wing, cl, Sref_main)
         # Believe I fixed the bug of this not working for subsonic: a,b,c needed to be boolean indexed as well. Not sure why they weren't?
         cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a[Mc <= 0.99]
         mcc[Mc <= 0.99]  = b[Mc <= 0.99]
@@ -174,7 +174,6 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown.compressible.total_volume = cd_c_v
     drag_breakdown.compressible.total_lift   = cd_c_l
     
-    #print('Printing compressible drag: ', drag_breakdown)
     return cd_c
 
 

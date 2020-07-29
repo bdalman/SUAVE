@@ -62,32 +62,80 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
     AOA = np.zeros(num_sections)
     CL  = np.zeros(num_sections)
     CD  = np.zeros(num_sections)
+    CD_ind = np.zeros(num_sections)
+    
     if CM_FLAG ==1:
         CM = np.zeros(num_sections)
+        side_slip_state = state.conditions.aerodynamics.side_slip_angle
+        mach_state = state.conditions.freestream.mach_number
+        density_state = state.conditions.freestream.density
+
+
+
 
     for i in range(0, num_sections):
         state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
+
+        if CM_FLAG == 1:
+            state.conditions.aerodynamics.side_slip_angle = np.array(side_slip_state)
+            state.conditions.freestream.mach_number       = np.array(mach_state)
+            state.conditions.freestream.density           = np.array(density_state)
+        #state.conditions.aerodynamics
+        #state.conditions.aerodynamics.angle_of_attack = target_AOA[i] * Units.deg
 
         #print(state.conditions.aerodynamics.angle_of_attack)
 
         new_results = aero_analyses.evaluate( state )
 
 
-        #print(breakdown)
-
         #print(new_results)
 
         #print(breakdown)
 
-        AOA[i] = target_AOA[i] * Units.deg   #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
+        AOA[i] = target_AOA[i] * Units.deg  #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
         CL[i] = new_results.lift.total
         CD[i] = new_results.drag.total
-        if CM_FLAG ==1:
-            CM[i] = stab_analyses.surrogates.moment_coefficient.predict([ np.array([ target_AOA[i] * Units.deg, target_mach ]) ])
+        CD_ind[i] = new_results.drag.compressibility.total
+
+        #print(new_results.drag)
+        #print(new_results.lift)
+        # if i == num_sections-1:
+        #     print(breakdown)
+
+        if CM_FLAG == 1:
+
+            #### No surrogate method - AVL call functions are coded weirdly which necessitated this junk
+            aoa = target_AOA[i] * Units.deg
+            side_slip = state.conditions.aerodynamics.side_slip_angle
+            mach = state.conditions.freestream.mach_number
+            dens = state.conditions.freestream.density
+            #velo = state.conditions.freestream.velocity
+
+            state.conditions.aerodynamics.angle_of_attack = [aoa.item()]  # B/c of bad code, AVL function evaluation doesn't work on numpy objects, and VLM evaluation only works on numpy arrays
+            state.conditions.aerodynamics.side_slip_angle = side_slip.item()
+            state.conditions.freestream.mach_number       = mach.item()
+            state.conditions.freestream.density           = dens.item()
+
+            #print('AOA: ', state.conditions.aerodynamics.angle_of_attack, type(state.conditions.aerodynamics.angle_of_attack))
+            #print('Side Slip: ', side_slip, type(side_slip))
+            #print('Mach: ', mach, type(state.conditions.freestream.mach_number))
+
+            results = stab_analyses.evaluate_conditions(state.conditions, False)
+            CM[i] = results.aerodynamics.Cmtot[:,0]
+
+            print('Neutral point: ', results.stability.static.neutral_point[:,0])
+            
+            #### Surrogate method for AVL, or normal method for Fid_zero
+            # conds = state.conditions
+            # stab_results = stab_analyses.__call__( conds )
+            # CM[i] = stab_results.static.CM
+
+            # print(stab_results)
+            #print(breakdown)
 
     if CM_FLAG==0:
         CM = np.zeros(num_sections)
-        return [AOA,CL,CD,CM]
+        return [AOA,CL,CD,CD_ind]
     elif CM_FLAG==1:
         return [AOA,CL,CD,CM]
 
