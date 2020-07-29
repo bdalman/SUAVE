@@ -63,6 +63,7 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3       #Very small change in fuse para drag
         settings.aircraft_span_efficiency_factor    = 0.78      #Seems to not effect supersonic missions
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38      #Also doesn't effect supersonic, but small effect on subsonic induced drag
         settings.drag_coefficient_increment         = 0.0000
         settings.oswald_efficiency_factor           = None

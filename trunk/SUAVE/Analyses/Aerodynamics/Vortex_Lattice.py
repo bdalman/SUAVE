@@ -8,6 +8,7 @@
 #           Nov 2017, E. Botero
 #           Dec 2018, M. Clarke
 #           Apr 2020, M. Clarke
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -209,15 +210,16 @@ class Vortex_Lattice(Aerodynamics):
 
         Outputs:
         conditions.aerodynamics.lift_breakdown.
-          inviscid_wings_lift[wings.*.tag]        [-] CL (wing specific)
+          inviscid_wings[wings.*.tag]             [-] CL (wing specific)
           inviscid_wings_lift.total               [-] CL
-        conditions.aerodynamics.                  
-        inviscid_wings_lift                       [-] CL
+          compressible_wing                       [-] CL (wing specific)
+        conditions.aerodynamics.lift_coefficient  [-] CL
         conditions.aerodynamics.drag_breakdown.induced.
           total                                   [-] CDi 
+          inviscid                                [-] CDi 
           wings_sectional_drag                    [-] CDiy (wing specific)
-          induced.inviscid_wings_drag             [-] CDi (wing specific)
-        
+          inviscid_wings                          [-] CDi (wing specific)
+          
         Properties Used:
         self.surrogates.
           lift_coefficient                        [-] CL
@@ -252,14 +254,12 @@ class Vortex_Lattice(Aerodynamics):
         
         # Create Result Data Structures         
         data_len                                                           = len(AoA)
-        eye                                                                = np.eye(data_len)
-        ones                                                               = np.ones(data_len)
         inviscid_lift                                                      = np.zeros([data_len,1]) 
         inviscid_drag                                                      = np.zeros([data_len,1])  
         conditions.aerodynamics.drag_breakdown.induced                     = Data()
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings      = Data()
         conditions.aerodynamics.lift_breakdown                             = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings              = Data()
         conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
         conditions.aerodynamics.drag_breakdown.compressible                = Data() 
         
@@ -277,9 +277,10 @@ class Vortex_Lattice(Aerodynamics):
                           (h_sup(Mach) - h_sub(Mach))*CDi_surrogate_trans((AoA,Mach))+ \
                           (1- h_sup(Mach))*CDi_surrogate_sup(AoA,Mach,grid=False)
     
-        conditions.aerodynamics.lift_coefficient             = np.atleast_2d(inviscid_lift).T
-        conditions.aerodynamics.lift_breakdown.total         = np.atleast_2d(inviscid_lift).T
-        conditions.aerodynamics.drag_breakdown.induced.total = np.atleast_2d(inviscid_drag).T
+        # Pack
+        conditions.aerodynamics.lift_coefficient                = np.atleast_2d(inviscid_lift).T
+        conditions.aerodynamics.lift_breakdown.total            = np.atleast_2d(inviscid_lift).T
+        conditions.aerodynamics.drag_breakdown.induced.inviscid = np.atleast_2d(inviscid_drag).T
         
         for wing in geometry.wings.keys(): 
             inviscid_wing_lifts      = np.zeros([data_len,1])
@@ -292,9 +293,10 @@ class Vortex_Lattice(Aerodynamics):
                                     (h_sup(Mach) - h_sub(Mach))*wing_CDi_surrogates_trans[wing]((AoA,Mach))+ \
                                     (1- h_sup(Mach))*wing_CDi_surrogates_sup[wing](AoA,Mach,grid=False)
              
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = np.atleast_2d(inviscid_wing_lifts).T
-            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = np.atleast_2d(inviscid_wing_lifts).T
-            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = np.atleast_2d(inviscid_wing_drags).T
+            # Pack 
+            conditions.aerodynamics.lift_breakdown.inviscid_wings[wing]         = np.atleast_2d(inviscid_wing_lifts).T
+            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]     = np.atleast_2d(inviscid_wing_lifts).T
+            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings[wing] = np.atleast_2d(inviscid_wing_drags).T
          
         return     
     
@@ -315,15 +317,14 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.
           inviscid_wings_lift[wings.*.tag]        [-] CL (wing specific)
           inviscid_wings_lift.total               [-] CL
-          inviscid_wings_sectional_lift           [-] Cly  
+          inviscid_wings_sectional                [-] Cly  
+          compressible_wing                       [-] CL (wing specific)
         conditions.aerodynamics.drag_breakdown.induced.
           total                                   [-] CDi 
+          inviscid                                [-] CDi 
           wings_sectional_drag                    [-] CDiy (wing specific)
-          induced.inviscid_wings_drag             [-] CDi  (wing specific)        
-        conditions.aerodynamics.lift_breakdown. 
-          total                                   [-] CDi 
-          wings_sectional_lift                    [-] Cly (wing specific)
-          induced.inviscid_wings_lift             [-] CDi (wing specific)        
+          induced.inviscid_wings                  [-] CDi  (wing specific)        
+    
         conditions.aerodynamics.
           pressure_coefficient                    [-] CP
          
@@ -344,17 +345,18 @@ class Vortex_Lattice(Aerodynamics):
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
-        conditions.aerodynamics.lift_coefficient                             = inviscid_lift  
-        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift        
-        conditions.aerodynamics.lift_breakdown.compressible_wings            = wing_lifts
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift = wing_lift_distribution
+        conditions.aerodynamics.lift_coefficient                        = inviscid_lift  
+        conditions.aerodynamics.lift_breakdown.total                    = inviscid_lift        
+        conditions.aerodynamics.lift_breakdown.compressible_wings       = wing_lifts
+        conditions.aerodynamics.lift_breakdown.inviscid_wings           = wing_lifts
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional = wing_lift_distribution
         
         # Drag        
-        conditions.aerodynamics.drag_breakdown.induced                       = Data()
-        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag        
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag   = wing_drags
-        conditions.aerodynamics.drag_breakdown.induced.wings_sectional_drag  = wing_drag_distribution 
+        conditions.aerodynamics.drag_breakdown.induced                 = Data()
+        conditions.aerodynamics.drag_breakdown.induced.total           = inviscid_drag     
+        conditions.aerodynamics.drag_breakdown.induced.inviscid        = inviscid_drag     
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings  = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
         
         # Pressure
         conditions.aerodynamics.pressure_coefficient                         = pressure_coefficient
@@ -450,7 +452,7 @@ class Vortex_Lattice(Aerodynamics):
             # Rearrange and pack
             CL_w_sub[wing]  = np.reshape(CL_wing_sub,(lenAoA,int(len(CL_wing_sub)/lenAoA))).T
             CL_w_sup[wing]  = np.reshape(CL_wing_sup,(lenAoA,int(len(CL_wing_sup)/lenAoA))).T
-            CDi_w_sub[wing] = np.reshape(CDi_wing_sub ,(lenAoA,int(len(CDi_wing_sub)/lenAoA))).T        
+            CDi_w_sub[wing] = np.reshape(CDi_wing_sub,(lenAoA,int(len(CDi_wing_sub)/lenAoA))).T        
             CDi_w_sup[wing] = np.reshape(CDi_wing_sup,(lenAoA,int(len(CDi_wing_sup)/lenAoA))).T       
         
         # surrogate not run on sectional coefficients and pressure coefficients
@@ -701,12 +703,22 @@ def calculate_VLM(conditions,settings,geometry):
     
     total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi = VLM(conditions,settings,geometry)
 
+    # Dimensionalize the lift and drag for each wing
+    areas = settings.vortex_distribution.wing_areas
+    dim_wing_lifts = CL_wing  * areas
+    dim_wing_drags = CDi_wing * areas
+    
     i = 0
+    # Assign the lift and drag and non-dimensionalize
     for wing in geometry.wings.values():
-        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,i]).T)
-        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,i]).T)
-        i+=1
+        ref = wing.areas.reference
         if wing.symmetric:
+            wing_lifts[wing.tag] = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
+            wing_drags[wing.tag] = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
             i+=1
+        else:
+            wing_lifts[wing.tag] = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
+            wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+        i+=1
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi

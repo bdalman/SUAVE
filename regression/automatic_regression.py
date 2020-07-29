@@ -11,13 +11,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
 import SUAVE
 from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
-import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #   How This Works
@@ -79,7 +80,6 @@ modules = [
     'scripts/rocket_network/Rocketdyne_F1.py',
     'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/segments/segment_test.py',     
-    'scripts/sizing_loop/sizing_loop.py',
     'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',

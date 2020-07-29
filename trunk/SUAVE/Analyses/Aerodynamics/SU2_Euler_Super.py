@@ -67,6 +67,7 @@ class SU2_Euler_Super(Markup):
         settings.wing_parasite_drag_form_factor     = 1.0 #1.1 Since CFD should capture the form/pressure drag better, don't double count
         settings.fuselage_parasite_drag_form_factor = 1.0 #2.3 Same as above. THIS CHANGE ASSUMES NO SEPARATION ON WING/FUSE, AND NO "SUPERVELOCITIES" AFFECTING CF
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
