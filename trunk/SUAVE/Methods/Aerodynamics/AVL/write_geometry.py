@@ -112,9 +112,9 @@ def make_header_text(avl_object):
     Sref  = avl_object.geometry.wings['main_wing'].areas.reference
     Cref  = avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic
     Bref  = avl_object.geometry.wings['main_wing'].spans.projected
-    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0][0]
-    Yref  = avl_object.geometry.mass_properties.center_of_gravity[0][1]
-    Zref  = avl_object.geometry.mass_properties.center_of_gravity[0][2]
+    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0]
+    Yref  = avl_object.geometry.mass_properties.center_of_gravity[1]
+    Zref  = avl_object.geometry.mass_properties.center_of_gravity[2]
     name  = avl_object.geometry.tag
 
     mach = 0.0
@@ -157,6 +157,10 @@ SURFACE
     # Unpack inputs
     symm = avl_wing.symmetric
     name = avl_wing.tag
+
+    ### Cheap fix to wing origin issue
+    avl_wing.sections.section_1.origin = [avl_wing.sections.section_1.origin]
+    avl_wing.sections.tip.origin = [avl_wing.sections.tip.origin]
 
     if symm:
         ydup = '\n\nYDUPLICATE\n0.0\n' # Duplication of wing about xz plane

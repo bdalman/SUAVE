@@ -441,9 +441,9 @@ class AVL(Stability):
         # translate conditions
         cases                            = translate_conditions_to_cases(self, run_conditions)    
         for case in cases:
-            cases[case].stability_and_control.number_control_surfaces = num_cs
-            cases[case].stability_and_control.control_surface_names   = cs_names
-            cases[case].stability_and_control.control_surface_functions = cs_functions
+            cases[case.tag].stability_and_control.number_control_surfaces = num_cs
+            cases[case.tag].stability_and_control.control_surface_names   = cs_names
+            cases[case.tag].stability_and_control.control_surface_functions = cs_functions
         self.current_status.cases        = cases  
         
        # write casefile names using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 

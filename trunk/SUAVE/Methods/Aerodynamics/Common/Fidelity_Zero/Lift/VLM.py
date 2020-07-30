@@ -93,7 +93,7 @@ def VLM(conditions,settings,geometry):
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
-        x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+        x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
     else:
         c_bar = 0.
         x_mac = 0.
@@ -103,7 +103,7 @@ def VLM(conditions,settings,geometry):
                     c_bar = wing.chords.mean_aerodynamic
                     x_mac = wing.aerodynamic_center[0] + wing.origin[0][0]
             
-    x_cg       = geometry.mass_properties.center_of_gravity[0][0]
+    x_cg       = geometry.mass_properties.center_of_gravity[0]
     if x_cg == None:
         x_m = x_mac 
     else:
