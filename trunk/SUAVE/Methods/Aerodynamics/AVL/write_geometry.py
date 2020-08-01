@@ -159,8 +159,15 @@ SURFACE
     name = avl_wing.tag
 
     ### Cheap fix to wing origin issue
-    avl_wing.sections.section_1.origin = [avl_wing.sections.section_1.origin]
-    avl_wing.sections.tip.origin = [avl_wing.sections.tip.origin]
+    ### Replaced one day later with a less cheap fix
+    # avl_wing.sections.section_1.origin = [avl_wing.sections.section_1.origin]
+    # avl_wing.sections.tip.origin = [avl_wing.sections.tip.origin]
+
+    for sect in avl_wing.sections:
+        sect_tag = sect.tag
+        origin_dims = check_list_dim(sect.origin)
+        if len(origin_dims) < 2:
+            sect.origin = [sect.origin]
 
     if symm:
         ydup = '\n\nYDUPLICATE\n0.0\n' # Duplication of wing about xz plane
@@ -194,6 +201,11 @@ SURFACE
             surface_text    = surface_text + section_text
 
     return surface_text
+
+def check_list_dim(a):
+    if not type(a) == list:
+        return []
+    return [len(a)] + check_list_dim(a[0])
 
 
 def make_body_text(avl_body,chordwise_vortices):   
