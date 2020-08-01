@@ -643,11 +643,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         angles  = []
         segs = fuselage.Segments
         for seg_name in segs:
-            widths.append(segs[seg_name].width)
-            heights.append(segs[seg_name].height)
-            x_poses.append(segs[seg_name].percent_x_location)
-            z_poses.append(segs[seg_name].percent_z_location)
-            angles.append(segs[seg_name].angle)
+            widths.append(segs[seg_name.tag].width)
+            heights.append(segs[seg_name.tag].height)
+            x_poses.append(segs[seg_name.tag].percent_x_location)
+            z_poses.append(segs[seg_name.tag].percent_z_location)
+            angles.append(segs[seg_name.tag].angle)
             
         end_ind = num_segs-1
     
@@ -767,6 +767,26 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
         vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
         vsp.Update()
+
+        # If nose or tail are flat, update those values
+        fuse_surf = vsp.GetXSecSurf(fuse_id,0)
+        if fuselage.vsp_data.flat_tail:
+            vsp.ChangeXSecShape(fuse_surf, num_segs-1, vsp.XS_ELLIPSE)
+            vsp.Update()  #Have to update here, otherwise it won't accept the width/height next
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(num_segs-1), widths[num_segs-1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(num_segs-1), heights[num_segs-1])
+            vsp.SetParmVal(fuse_id, "CapUMaxOption", "EndCap", 1)
+            vsp.Update()
+
+
+        if fuselage.vsp_data.flat_nose:
+            vsp.ChangeXSecShape(fuse_surf, 0, vsp.XS_ELLIPSE)
+            vsp.Update()  #Have to update here, otherwise it won't accept the width/height next
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(0), widths[0])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(0), heights[0])
+            vsp.SetParmVal(fuse_id, "CapUMinOption", "EndCap", 1)
+            vsp.Update()
+
         if 'z_pos' in vals.tail:
             tail_z_pos = vals.tail.z_pos
         else:
