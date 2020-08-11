@@ -167,9 +167,11 @@ def set_sources(geometry):
         comp_type_dict[fuselage.tag] = 'fuselage'
         comp_dict[fuselage.tag] = fuselage
     # Propulsor sources have not been implemented
-    #for propulsor in geometry.propulsors:
-        #comp_type_dict[propulsor.tag] = 'turbojet'
-        #comp_dict[propulsor.tag] = propulsor
+    for propulsor in geometry.propulsors:
+        # comp_type_dict[propulsor.tag] = 'turbojet'
+        print('Also fix write_vsp_mesh hack in line 173')
+        comp_type_dict['turbojet_1'] = 'turbojet'
+        comp_dict[propulsor.tag] = propulsor
 
 
     #print('Mesh source workaround implemented!!! in write_vsp_mesh!!')
@@ -286,6 +288,9 @@ def set_sources(geometry):
             uloc = 1.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
             pass
+
+        elif comp_type == 'turbojet':
+            continue
         
         # This is a stub for the nacelle implementation. It will create sources
         # as is but they will not be appropriate for the nacelle shape.

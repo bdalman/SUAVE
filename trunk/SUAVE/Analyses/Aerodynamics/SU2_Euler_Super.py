@@ -157,12 +157,12 @@ class SU2_Euler_Super(Markup):
             #status = MPI.Status()
             
             
-            print('Meshing disabled in SU2 Euler Super script while using existing mesh')
-            # write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            #print('Meshing disabled in SU2 Euler Super script while using existing mesh')
+            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             
-            # write_geo_file(tag)
-            # print('Finished writing geo file for: ', tag)
-            # mesh_geo_file(tag)
+            write_geo_file(tag)
+            print('Finished writing geo file for: ', tag)
+            mesh_geo_file(tag)
             
 
 
