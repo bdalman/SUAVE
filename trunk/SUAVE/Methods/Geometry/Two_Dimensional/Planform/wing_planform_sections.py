@@ -67,6 +67,7 @@ def wing_planform_sections(wing):
     span        = wing.spans.projected
     taper       = wing.taper                           #Uses wing.taper to set tip chord based on previous section chord
     chord_root  = wing.root_chord                       #New
+    root_chord_offset = wing.exposed_root_chord_offset
     #sweep       = wing.sweeps.leading_edge             # Remove??
     #ar          = wing.aspect_ratio                    #Remove input??
     t_c_w       = wing.thickness_to_chord
@@ -85,9 +86,11 @@ def wing_planform_sections(wing):
     segment_le_sweeps       = np.zeros(num_sections, dtype=float)
     segment_thickness       = np.zeros(num_sections, dtype=float)
     segment_taper           = np.zeros(num_sections, dtype=float)
+    segment_mac             = np.zeros(num_sections, dtype=float)
 
     segment_ar              = np.zeros(num_sections, dtype=float)
     segment_area            = np.zeros(num_sections, dtype=float)
+    segment_wetted_area     = np.zeros(num_sections, dtype=float)
     sweep_dist              = np.zeros(num_sections-1, dtype=float)
     segment_HC_sweep        = np.zeros(num_sections, dtype=float)
     segment_length          = np.zeros(num_sections-1, dtype=float)
@@ -118,9 +121,27 @@ def wing_planform_sections(wing):
 
     for ii in range(0, num_sec_less_one):
         segment_chord[ii+1]      = segment_chord[ii] * segment_taper[ii]                                                              # Calculate tip chord based off section taper and previous root chord
-        segment_area[ii]         = (segment_chord[ii]+segment_chord[ii+1])*0.5 * (span_percents[ii+1]-span_percents[ii])*(span)      #Calculate section area. THIS ASSUMES SYMMETRIC WINGS
-        segment_ar[ii]           = ((span_percents[ii+1]-span_percents[ii])*span)**2/segment_area[ii]
+        segment_area[ii]         = (segment_chord[ii]+segment_chord[ii+1])*0.5 * (span_percents[ii+1]-span_percents[ii])*(span)      #Calculate section area. THIS ASSUMES SYMMETRIC WINGS.
+        segment_ar[ii]           = ((span_percents[ii+1]-span_percents[ii])*span)**2/segment_area[ii]                   
         segment_HC_sweep[ii]         = np.arctan(np.tan(segment_le_sweeps[ii]) - (4./segment_ar[ii])*(0.5-0.)*(1.-segment_taper[ii])/(1.+segment_taper[ii]))
+
+        if ii == 0:
+            exposed_span_perc = root_chord_offset/ (span*0.5)
+            exposed_root_chord = chord_root - ((chord_root-segment_chord[ii+1])* (exposed_span_perc/span_percents[ii+1])) 
+            first_sec_area = (exposed_root_chord +segment_chord[ii+1])*0.5 * (span_percents[ii+1]-(root_chord_offset/span))*(span)
+            exposed_taper = segment_chord[ii+1]/exposed_root_chord
+
+            segment_mac[ii] = exposed_root_chord * 2/3 * ((1+ exposed_taper + exposed_taper**2)/(1+ exposed_taper))
+            if segment_thickness[ii] < 0.05:
+                segment_wetted_area[ii] = 2.003 * first_sec_area
+            else:
+                segment_wetted_area[ii] = (1.977 + 0.52*segment_thickness[ii]) * first_sec_area
+        else:
+            segment_mac[ii] = segment_chord[ii] * 2/3 * ((1+ segment_taper[ii] + segment_taper[ii]**2)/(1+ segment_taper[ii]))
+            if segment_thickness[ii] < 0.05:
+                segment_wetted_area[ii] = 2.003 * segment_area[ii]
+            else:
+                segment_wetted_area[ii] = (1.977 + 0.52*segment_thickness[ii]) * segment_area[ii]
 
 
 
@@ -144,18 +165,23 @@ def wing_planform_sections(wing):
     #Calculate LE sweep from first to 
     for i in range(0, num_sec_less_one):
         sweep_dist[i]       = np.tan(segment_le_sweeps[i])*(span_percents[i+1]-span_percents[i])*(span/2)
-        segment_length[i]   = (span*0.5)*(span_percents[i+1]-span_percents[i])/np.cos(segment_HC_sweep[i])
+        #segment_length[i]   = (span*0.5)*(span_percents[i+1]-span_percents[i])/np.cos(segment_HC_sweep[i])
+        segment_length[i] = np.maximum(segment_chord[i], sweep_dist[i]+segment_chord[i+1])
+
+
 
     total_sweep_dist = np.sum(sweep_dist)
 
     le_sweep = np.arctan(total_sweep_dist/(span*0.5))
 
     
-    swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
+    #swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
+    swet = np.sum(segment_wetted_area)
 
-    mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
+    mac = 2./3.*( exposed_root_chord+chord_tip - exposed_root_chord*chord_tip/(exposed_root_chord+chord_tip) )
 
-    total_length = np.sum(segment_length) * 2
+    #total_length = np.sum(segment_length) * 2
+    total_length = np.maximum(exposed_root_chord, total_sweep_dist+segment_chord[-1])
 
     # span efficency
     e = 4.61 * (1-0.045 * ar**0.68)*np.cos(le_sweep)**0.15 -3.1  #Method from Raymer. Not valid for sweep < 30deg
@@ -197,6 +223,7 @@ def wing_planform_sections(wing):
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
+    wing.chords.exposed_root_chord  = exposed_root_chord
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
     wing.areas.reference            = sref
@@ -210,8 +237,11 @@ def wing_planform_sections(wing):
     wing.total_length               = total_length
     for ii in range(0, num_sections):
         wing.Segments[ii].areas.reference = segment_area[ii]
+        wing.Segments[ii].areas.wetted = segment_wetted_area[ii]
         wing.Segments[ii].aspect_ratio = segment_ar[ii]
         wing.Segments[ii].taper         = segment_taper[ii]
+
+        wing.Segments[ii].chords.mean_aerodynamic = segment_mac[ii]
 
     #Need to add wing CG estimate
     
