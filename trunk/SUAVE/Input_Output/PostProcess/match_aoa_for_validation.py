@@ -62,7 +62,7 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
     AOA = np.zeros(num_sections)
     CL  = np.zeros(num_sections)
     CD  = np.zeros(num_sections)
-    CD_ind = np.zeros(num_sections)
+    CD_extra = np.zeros(num_sections)
     
     if CM_FLAG ==1:
         CM = np.zeros(num_sections)
@@ -95,7 +95,7 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
         AOA[i] = target_AOA[i] * Units.deg  #This will convert it back to rads which SUAVE uses for everything except plotting, and numpy needs rads
         CL[i] = new_results.lift.total
         CD[i] = new_results.drag.total
-        CD_ind[i] = new_results.drag.compressibility.total
+        #CD_extra[i] = new_results.drag.compressibility.total
 
         #print(new_results.drag)
         #print(new_results.lift)
@@ -135,7 +135,7 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
 
     if CM_FLAG==0:
         CM = np.zeros(num_sections)
-        return [AOA,CL,CD,CD_ind]
+        return [AOA,CL,CD,CM]
     elif CM_FLAG==1:
         return [AOA,CL,CD,CM]
 
