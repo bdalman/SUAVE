@@ -36,7 +36,7 @@ def write_SU2_cfg(tag,SU2_settings):
     #ref_area = 4.0  #8 in^2 / 2
     x_mom_ori = SU2_settings.x_moment_origin
     #x_mom_ori = 1.47125
-    ref_length = x_mom_ori * 4
+    ref_length = SU2_settings.reference_length
     mach     = SU2_settings.mach_number
     AOA      = SU2_settings.angle_of_attack
     iters    = SU2_settings.maximum_iterations
@@ -45,6 +45,8 @@ def write_SU2_cfg(tag,SU2_settings):
     turb_model = SU2_settings.turb_model
 
     filename = tag + '.cfg'
+
+    mesh_filename = SU2_settings.mesh_file
     f = open(filename,mode='w')
 
     # Problem definition
@@ -140,7 +142,9 @@ def write_SU2_cfg(tag,SU2_settings):
     # Input/Output
     ##f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
     ##f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
-    f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
+    # f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
+    f.write('MESH_FILENAME = ' + mesh_filename + '\n\n')
+
     #f.write('MESH_FILENAME = ' + 'DeltaWing_thinAF' + '.su2\n\n')
     #f.write('MESH_FILENAME = ' + 'DeltaWing_volMesh' + '.su2\n\n')
     #print('Hardcoded su2 mesh name into write cfg!')

@@ -99,7 +99,7 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        print('Pylon parasite drag disabled for Euler Super!')
+        # print('Pylon parasite drag disabled for Euler Super!')
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
@@ -155,14 +155,22 @@ class SU2_Euler_Super(Markup):
             # nproc = comm.Get_size()
             # myrank = comm.Get_rank()
             #status = MPI.Status()
-            
-            
-            #print('Meshing disabled in SU2 Euler Super script while using existing mesh')
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
-            
-            write_geo_file(tag)
-            print('Finished writing geo file for: ', tag)
-            mesh_geo_file(tag)
+
+
+            if self.process.compute.lift.inviscid.settings.use_existing_mesh == False:
+                # print('Meshing disabled in SU2 Euler Super script while using existing mesh')
+                write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+                
+                write_geo_file(tag)
+                print('Finished writing geo file for: ', tag)
+                mesh_geo_file(tag)
+
+                mesh_tag = tag + '.su2'
+
+                self.process.compute.lift.inviscid.settings.mesh_file = mesh_tag
+            # else:
+            #     self.process.compute.lift.inviscid.settings.mesh_file = self.settings.existing_mesh_tag
+
             
 
 
