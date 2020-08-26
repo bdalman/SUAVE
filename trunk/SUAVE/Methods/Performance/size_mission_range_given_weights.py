@@ -15,7 +15,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Performance
-def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_payload,takeoff_weight=0.,reserve_fuel=0.):
+def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_payload,takeoff_weight=0.,reserve_fuel=0., return_cruise_dist=False):
     """Calculates a vehicle's range and fuel for a given takeoff weight and payload
 
     Assumptions:
@@ -98,7 +98,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
-        print('About to evaluate weights mission')
+        print('About to evaluate range/weights mission')
         results = mission.evaluate()
         segment = results.segments[segmentNum]
 
@@ -107,7 +107,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         # User don't have the option of run a mission for a given fuel. So, we
         # have to iterate distance in order to have total fuel equal to target fuel
 
-        maxIter  = 4    # maximum iteration limit
+        maxIter  = 10    # maximum iteration limit
         tol      = 1e-6   # fuel convergency tolerance
         residual = 9999. # residual to be minimized
         iter     = 0     # iteration count
@@ -151,4 +151,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
 
     mission.segments[0].analyses.weights.mass_properties.takeoff = TOW_ref
 
-    return distance,fuel
+    if return_cruise_dist:
+        return CruiseDist, distance, fuel
+    else:
+        return distance,fuel

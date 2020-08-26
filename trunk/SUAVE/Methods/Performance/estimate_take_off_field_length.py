@@ -100,7 +100,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     
     settings = analyses.aerodynamics.settings
 
-    maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(state,settings,vehicle)
+    try:
+        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
+    except:
+        maximum_lift_coefficient, _ = compute_max_lift_coeff(state,settings,vehicle)
 
     # ==============================================
     # Computing speeds (Vs, V2, 0.7*V2)
@@ -108,6 +111,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     stall_speed = (2 * weight * sea_level_gravity / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
     V2_speed    = V2_VS_ratio * stall_speed
     speed_for_thrust  = 0.70 * V2_speed
+    print('V2_Speed is: ', V2_speed)
 
     # ==============================================
     # Determining vehicle number of engines
