@@ -76,6 +76,9 @@ def match_aoa_for_validation(analyses, results, aoa_targets, CM_FLAG=0, target_m
     for i in range(0, num_sections):
         state.conditions.aerodynamics.angle_of_attack = np.array([[target_AOA[i]]]) * Units.deg
 
+        if target_mach != 1:
+            state.conditions.freestream.mach_number     = target_mach
+
         if CM_FLAG == 1:
             state.conditions.aerodynamics.side_slip_angle = np.array(side_slip_state)
             state.conditions.freestream.mach_number       = np.array(mach_state)

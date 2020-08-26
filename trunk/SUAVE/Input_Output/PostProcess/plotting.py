@@ -60,7 +60,7 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 	plt.rc('font', size=10)
 
 	# Actually plot now
-	if labels[0] != None:
+	if labels != None:
 		for i in range(0, num_data_per_plot):
 			if marker_flag:
 				marker = marker_flag

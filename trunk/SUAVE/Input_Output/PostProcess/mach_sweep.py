@@ -13,7 +13,7 @@ import numpy as np
 import copy
 
 
-def mach_sweep(analyses, mach_targets):
+def mach_sweep(analyses, mach_targets, verbose=True):
     """ Takes a list of input angles and the mission data structure, reruns the aerodynamics for the given AoAs 
     
         Assumptions:
@@ -50,9 +50,10 @@ def mach_sweep(analyses, mach_targets):
     #print(breakdown)
     conditions = state.conditions
     target_speeds = mach_targets
-    num_sections = len(target_speeds)
+    num_sections = len(target_speeds[0])
 
-    print('Passed in target speeds: ', target_speeds)
+    if verbose:
+        print('Passed in target speeds: ', target_speeds[0])
 
 
     # Initialize results variables you care about for plotting
@@ -71,9 +72,10 @@ def mach_sweep(analyses, mach_targets):
     thrust_required = np.zeros(num_sections)
     tsfc = np.zeros(num_sections)
     specific_impulse = np.zeros(num_sections)
+    throttle        = np.zeros(num_sections)
 
     for i in range(0, num_sections):
-        analyses.missions.base.segments[0].air_speed = target_speeds[i]
+        analyses.missions.base.segments[0].air_speed = target_speeds[0][i]
         #print(analyses.missions.base.segments[0].altitude)
         #print(breakdown)
         analyses.finalize()
@@ -82,15 +84,13 @@ def mach_sweep(analyses, mach_targets):
 
         new_results = mission.evaluate()
 
-        #print(new_results.segments[0].conditions.freestream.keys())
-
         #Plane chars to save
 
         
         aoa[i] = new_results.segments[0].conditions.aerodynamics.angle_of_attack
         drag[i] = -1 * new_results.segments[0].conditions.frames.wind.drag_force_vector[:,0]
         lift[i] = -1 * new_results.segments[0].conditions.frames.wind.lift_force_vector[:,2]
-        speed[i] = target_speeds[i]
+        speed[i] = target_speeds[0][i]
         mach[i] = new_results.segments[0].conditions.freestream.mach_number
         temp[i] = new_results.segments[0].conditions.freestream.temperature
         pres[i] = new_results.segments[0].conditions.freestream.pressure
@@ -98,8 +98,10 @@ def mach_sweep(analyses, mach_targets):
         stag_temp[i] = new_results.segments[0].conditions.freestream.stagnation_temperature
         stag_pres[i] = new_results.segments[0].conditions.freestream.stagnation_pressure
 
-        print('For speed of :', new_results.segments[0].conditions.freestream.mach_number)
-        print('Lift coef is: ', new_results.segments[0].conditions.aerodynamics.lift_coefficient)
+
+        if verbose:
+            print('For speed of :', new_results.segments[0].conditions.freestream.mach_number)
+            print('Lift coef is: ', new_results.segments[0].conditions.aerodynamics.lift_coefficient)
 
         #print(new_results.segments[0].conditions.aerodynamics.drag_breakdown)
         #print(new_results.segments[0].conditions.aerodynamics.lift_coefficient)
@@ -114,8 +116,11 @@ def mach_sweep(analyses, mach_targets):
         thrust_required[i] = new_results.segments[0].analyses.energy.network[keys[0]].thrust.outputs.thrust
         tsfc[i] = new_results.segments[0].analyses.energy.network[keys[0]].thrust.outputs.thrust_specific_fuel_consumption
         specific_impulse[i] = new_results.segments[0].analyses.energy.network[keys[0]].thrust.outputs.specific_impulse
+        throttle[i]         = new_results.segments[0].conditions.propulsion.throttle[:,0]
 
-        print('Iteration: ', i)
+
+        if verbose:
+            print('Iteration: ', i)
 
         #print(breakdown)
 
@@ -126,6 +131,6 @@ def mach_sweep(analyses, mach_targets):
     
 
 
-    return [aoa, drag, lift, speed, mach, temp, pres, dynamic_pres, stag_temp, stag_pres, thrust_required, tsfc, specific_impulse]
+    return [aoa, drag, lift, speed, mach, temp, pres, dynamic_pres, stag_temp, stag_pres, thrust_required, tsfc, specific_impulse, throttle]
 
 
