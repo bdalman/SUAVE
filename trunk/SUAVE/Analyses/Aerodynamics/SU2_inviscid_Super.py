@@ -171,8 +171,8 @@ class SU2_inviscid_Super(Aerodynamics):
         sup_trans_spline = Cubic_Spline_Blender(hsup_min,hsup_max) 
         h_sup            = lambda M:sup_trans_spline.compute(M) 
 
-        print('Turn on line 175 and 211 in SU2_invisc_super when modelling fuse again for CM calc!')
-        #vehicle_length = geometry.fuselages['fuselage'].lengths.total        
+        # print('Turn on line 175 and 211 in SU2_invisc_super when modelling fuse again for CM calc!')
+        vehicle_length = geometry.fuselages['fuselage'].lengths.total        
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
         # Unapck the surrogates
@@ -188,9 +188,12 @@ class SU2_inviscid_Super(Aerodynamics):
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = h_sub(mach[ii])*CL_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
+            # inviscid_lift[ii] = h_sub(mach[ii])*CL_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
+            #               (h_sup(mach[ii]) - h_sub(mach[ii]))*CL_surrogate_trans((AoA[ii],mach[ii]))+ \
+            #               (1- h_sup(mach[ii]))*CL_surrogate_sup(AoA[ii],mach[ii],grid=False)
+            inviscid_lift[ii] = h_sub(mach[ii])*CL_surrogate_sub((AoA[ii],mach[ii]))    +\
                           (h_sup(mach[ii]) - h_sub(mach[ii]))*CL_surrogate_trans((AoA[ii],mach[ii]))+ \
-                          (1- h_sup(mach[ii]))*CL_surrogate_sup(AoA[ii],mach[ii],grid=False)
+                          (1- h_sup(mach[ii]))*CL_surrogate_sup((AoA[ii],mach[ii]))
 
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
@@ -204,11 +207,14 @@ class SU2_inviscid_Super(Aerodynamics):
             inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
                           (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
                           (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup(AoA[ii],mach[ii],grid=False)
+            # inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub((AoA[ii],mach[ii]))    +\
+            #               (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
+            #               (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup((AoA[ii],mach[ii]))
       
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
         
-        #geometry.aerodynamic_center = x_ac * vehicle_length
+        # geometry.aerodynamic_center = x_ac * vehicle_length
 
         return inviscid_lift, inviscid_drag
 
@@ -308,7 +314,7 @@ class SU2_inviscid_Super(Aerodynamics):
         # Save the data
         np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD,CM]),fmt='%10.8f',header='AoA Mach CL CD CM')
 
-        print('Added location of training_file to aerodynamics data structure after creation!')
+        # print('Added location of training_file to aerodynamics data structure after creation!')
         self.training_file = geometry.tag+'_data.txt'
 
         # Store training data
@@ -424,17 +430,22 @@ class SU2_inviscid_Super(Aerodynamics):
         mach_data_trans_CL   = np.array([mach_data_sub[-1], mach_data_sup[0]])#, mach_data_sup[1]])
         mach_data_trans_CDinviscnvisc  = np.array([mach_data_sub[-1], mach_data_sup[0]])#, mach_data_sup[1]])
 
-        cl_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub, kx=2, ky=2)  
+        # cl_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub, kx=2, ky=2)  
+        cl_surrogate_sub               = RegularGridInterpolator((AoA_data, mach_data_sub), CL_data_sub, method='linear', bounds_error=False, fill_value=None)
         cl_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_data_trans, \
                                                                  method = 'linear', bounds_error=False, fill_value=None)  
         
-        cd_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CDinviscnvisc_data_sub, kx=2, ky=2)      
+        cd_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CDinviscnvisc_data_sub, kx=2, ky=2) 
+        # cd_surrogate_sub               = RegularGridInterpolator((AoA_data, mach_data_sub), CDinviscnvisc_data_sub, method='linear', bounds_error=False, fill_value=None)      
         cd_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CDinviscnvisc), CDinviscnvisc_data_trans, \
                                                                  method = 'linear', bounds_error=False, fill_value=None)
 
         if lenMachSup > 2: # Sets different interpolation orders depending on how many data points you have. 2nd Order for 3 or more in supersonic
-            cl_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=2)
+            # cl_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=2)
             cd_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=2)
+
+            cl_surrogate_sup               = RegularGridInterpolator((AoA_data, mach_data_sup), CL_data_sup, method='linear', bounds_error=False, fill_value=None)
+            # cd_surrogate_sup               = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
         else: 
             if lenMachSup == 1: # If you only have one supersonic set, spoof a second set to enable the interpolation, essentially a 0th order interp
                 new_CL_data_sup = np.append(CL_data_sup, CL_data_sup, axis=1)
@@ -443,13 +454,19 @@ class SU2_inviscid_Super(Aerodynamics):
 
                 #Bounding box to prevent interpolation outside of range. Down to zero so it won't cause issues when splining the surrogates together for calcs
 
-                cl_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]]) 
+                # cl_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]]) 
                 cd_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]])
+
+                cl_surrogate_sup        = RegularGridInterpolator((AoA_data, new_mach_data_sup), new_CL_data_sup, method='linear', bounds_error=False, fill_value=None) 
+                # cd_surrogate_sup        = RegularGridInterpolator((AoA_data, new_mach_data_sup), new_CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
 
             else: #If you have two pieces of data, do actual 1st order
 
-                cl_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]]) 
+                # cl_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]]) 
                 cd_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]])
+
+                cl_surrogate_sup        = RegularGridInterpolator((AoA_data, mach_data_sup), CL_data_sup, method='linear', bounds_error=False, fill_value=None) 
+                # cd_surrogate_sup        = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
 
 
 
@@ -581,9 +598,19 @@ class SU2_inviscid_Super(Aerodynamics):
             
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
-                CL_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CL_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False) +\
+                #New calling functions, if all speeds are using RegularGridInterpolator
+                CL_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CL_surrogate_sub((AoA_mesh[ii,jj], mach_mesh[ii,jj])) +\
                     ( h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ) ) * CL_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj])) +\
-                    (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup(AoA_mesh[ii,jj],mach_mesh[ii,jj],grid=False)
+                    (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup((AoA_mesh[ii,jj],mach_mesh[ii,jj]))
+
+                # CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub((AoA_mesh[ii,jj], mach_mesh[ii,jj]))   +\
+                #     (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
+                #     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_sup((AoA_mesh[ii,jj], mach_mesh[ii,jj]))
+
+                # Below is the calls for if using rectBivariateSpline for sub and sup
+                # CL_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CL_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False) +\
+                #     ( h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ) ) * CL_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj])) +\
+                #     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup(AoA_mesh[ii,jj],mach_mesh[ii,jj],grid=False)
 
                 CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)   +\
                     (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
@@ -673,10 +700,13 @@ def call_SU2(conditions,settings,geometry):
         SU2_settings.reference_area  = geometry.reference_area/2.
     SU2_settings.mach_number     = conditions.aerodynamics.mach
     try:
-        SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
+        # SU2_settings.x_moment_origin = geometry.fuselages['fuselage'].lengths.total * 0.25
+        SU2_settings.x_moment_origin = geometry.mass_properties.center_of_gravity[0]
+        SU2_settings.reference_length = geometry.wings['main_wing'].chords.mean_aerodynamic
     except:
         print('No fuselage length found in call_SU2! Setting to 0')
         SU2_settings.x_moment_origin = 0.0
+        SU2_settings.reference_length = 1.0
 
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     SU2_settings.maximum_iterations = iters
@@ -686,6 +716,10 @@ def call_SU2(conditions,settings,geometry):
         SU2_settings.turb_model = settings.turb_model
     else:
         SU2_settings.turb_model = None
+
+
+
+    SU2_settings.mesh_file = settings.mesh_file
     
     # Build SU2 configuration file
     write_SU2_cfg(tag, SU2_settings)
