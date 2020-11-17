@@ -48,6 +48,8 @@ def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
     freestream   = conditions.freestream
     ref_area     = geometry.reference_area
     tag          = geometry.tag
+
+    # print(tag)
     
     # conditions
     Mc  = copy.copy(freestream.mach_number)

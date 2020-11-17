@@ -204,12 +204,12 @@ class SU2_inviscid_Super(Aerodynamics):
         # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
-                          (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
-                          (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup(AoA[ii],mach[ii],grid=False)
-            # inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub((AoA[ii],mach[ii]))    +\
+            # inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub(AoA[ii],mach[ii],grid=False)    +\
             #               (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
-            #               (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup((AoA[ii],mach[ii]))
+            #               (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup(AoA[ii],mach[ii],grid=False)
+            inviscid_drag[ii] = h_sub(mach[ii])*CDinvisc_surrogate_sub((AoA[ii],mach[ii]))    +\
+                          (h_sup(mach[ii]) - h_sub(mach[ii]))*CDinvisc_surrogate_trans((AoA[ii],mach[ii]))+ \
+                          (1- h_sup(mach[ii]))*CDinvisc_surrogate_sup((AoA[ii],mach[ii]))
       
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.untrimmed     = inviscid_drag
@@ -435,17 +435,17 @@ class SU2_inviscid_Super(Aerodynamics):
         cl_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_data_trans, \
                                                                  method = 'linear', bounds_error=False, fill_value=None)  
         
-        cd_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CDinviscnvisc_data_sub, kx=2, ky=2) 
-        # cd_surrogate_sub               = RegularGridInterpolator((AoA_data, mach_data_sub), CDinviscnvisc_data_sub, method='linear', bounds_error=False, fill_value=None)      
+        # cd_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CDinviscnvisc_data_sub, kx=2, ky=2) 
+        cd_surrogate_sub               = RegularGridInterpolator((AoA_data, mach_data_sub), CDinviscnvisc_data_sub, method='linear', bounds_error=False, fill_value=None)      
         cd_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CDinviscnvisc), CDinviscnvisc_data_trans, \
                                                                  method = 'linear', bounds_error=False, fill_value=None)
 
         if lenMachSup > 2: # Sets different interpolation orders depending on how many data points you have. 2nd Order for 3 or more in supersonic
             # cl_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=2)
-            cd_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=2)
+            # cd_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=2)
 
             cl_surrogate_sup               = RegularGridInterpolator((AoA_data, mach_data_sup), CL_data_sup, method='linear', bounds_error=False, fill_value=None)
-            # cd_surrogate_sup               = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
+            cd_surrogate_sup               = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
         else: 
             if lenMachSup == 1: # If you only have one supersonic set, spoof a second set to enable the interpolation, essentially a 0th order interp
                 new_CL_data_sup = np.append(CL_data_sup, CL_data_sup, axis=1)
@@ -455,18 +455,18 @@ class SU2_inviscid_Super(Aerodynamics):
                 #Bounding box to prevent interpolation outside of range. Down to zero so it won't cause issues when splining the surrogates together for calcs
 
                 # cl_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]]) 
-                cd_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]])
+                # cd_surrogate_sup        = RectBivariateSpline(AoA_data, new_mach_data_sup, new_CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, new_mach_data_sup[1]])
 
                 cl_surrogate_sup        = RegularGridInterpolator((AoA_data, new_mach_data_sup), new_CL_data_sup, method='linear', bounds_error=False, fill_value=None) 
-                # cd_surrogate_sup        = RegularGridInterpolator((AoA_data, new_mach_data_sup), new_CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
+                cd_surrogate_sup        = RegularGridInterpolator((AoA_data, new_mach_data_sup), new_CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
 
             else: #If you have two pieces of data, do actual 1st order
 
                 # cl_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]]) 
-                cd_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]])
+                # cd_surrogate_sup        = RectBivariateSpline(AoA_data, mach_data_sup, CDinviscnvisc_data_sup, kx=2, ky=1, bbox=[None, None, 0.0, mach_data_sup[1]])
 
                 cl_surrogate_sup        = RegularGridInterpolator((AoA_data, mach_data_sup), CL_data_sup, method='linear', bounds_error=False, fill_value=None) 
-                # cd_surrogate_sup        = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
+                cd_surrogate_sup        = RegularGridInterpolator((AoA_data, mach_data_sup), CDinviscnvisc_data_sup, method='linear', bounds_error=False, fill_value=None)
 
 
 
@@ -603,18 +603,18 @@ class SU2_inviscid_Super(Aerodynamics):
                     ( h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ) ) * CL_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj])) +\
                     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup((AoA_mesh[ii,jj],mach_mesh[ii,jj]))
 
-                # CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub((AoA_mesh[ii,jj], mach_mesh[ii,jj]))   +\
-                #     (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
-                #     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_sup((AoA_mesh[ii,jj], mach_mesh[ii,jj]))
+                CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub((AoA_mesh[ii,jj], mach_mesh[ii,jj]))   +\
+                    (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
+                    (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_sup((AoA_mesh[ii,jj], mach_mesh[ii,jj]))
 
                 # Below is the calls for if using rectBivariateSpline for sub and sup
                 # CL_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CL_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False) +\
                 #     ( h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ) ) * CL_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj])) +\
                 #     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CL_surrogate_sup(AoA_mesh[ii,jj],mach_mesh[ii,jj],grid=False)
 
-                CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)   +\
-                    (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
-                    (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_sup(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)
+                # CD_sur[ii,jj] = h_sub( np.atleast_2d(mach_mesh[ii,jj]) )*CDinviscnvisc_surrogate_sub(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)   +\
+                #     (h_sup( np.atleast_2d(mach_mesh[ii,jj]) ) - h_sub( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_trans((AoA_mesh[ii,jj],mach_mesh[ii,jj]))+ \
+                #     (1- h_sup( np.atleast_2d(mach_mesh[ii,jj]) ))*CDinviscnvisc_surrogate_sup(AoA_mesh[ii,jj], mach_mesh[ii,jj],grid=False)
             
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
@@ -628,7 +628,7 @@ class SU2_inviscid_Super(Aerodynamics):
 
         # Stub for plotting drag if implemented:
 
-        drag_levels = np.linspace(0,0.14,21)
+        drag_levels = np.linspace(0,0.40,56)
 
         fig = plt.figure('Coefficient of Drag Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=drag_levels)

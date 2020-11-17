@@ -78,7 +78,10 @@ def mach_sweep(analyses, mach_targets, verbose=True):
         analyses.missions.base.segments[0].air_speed = target_speeds[0][i]
         #print(analyses.missions.base.segments[0].altitude)
         #print(breakdown)
-        analyses.finalize()
+
+        ## Commented out analyses.finalize() - better option is probably just to complete before pass in
+        ## The reason to comment out is if a mission with a surrogate was passed in, it was recreating the surrogate every time, which is substantially more expensive then just solving w/o surrogate
+        # analyses.finalize()
 
         mission = analyses.missions.base
 

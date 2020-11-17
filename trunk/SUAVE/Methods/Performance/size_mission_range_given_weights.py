@@ -108,7 +108,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         # have to iterate distance in order to have total fuel equal to target fuel
 
         maxIter  = 10    # maximum iteration limit
-        tol      = 1e-6   # fuel convergency tolerance
+        tol      = 1e-4   # fuel convergency tolerance
         residual = 9999. # residual to be minimized
         iter     = 0     # iteration count
 

@@ -70,6 +70,8 @@ def compressibility_drag_total(state,settings,geometry):
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
+    Mc = np.atleast_2d(Mc)
+
     #Mc = np.squeeze(Mc, axis=1)
     #print(Mc)
 
@@ -97,7 +99,7 @@ def compressibility_drag_total(state,settings,geometry):
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general 
         
-        print('Warning: fuselage is turned off in VSP compressibility drag total - I dont think it does anything though!')
+        # print('Warning: fuselage is turned off in VSP compressibility drag total - I dont think it does anything though!')
         #main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
@@ -143,9 +145,14 @@ def compressibility_drag_total(state,settings,geometry):
 
     # For subsonic mach numbers, use drag divergence correlations to find the drag
     for k in wings.keys():
-        wing = wings[k] 
+        wing = wings[k]
+
         (a,b,c) = drag_div(Mc[Mc <= 0.99], wing, cl, Sref_main)
         # Believe I fixed the bug of this not working for subsonic: a,b,c needed to be boolean indexed as well. Not sure why they weren't?
+        a = np.atleast_2d(a)
+        b = np.atleast_2d(b)
+        c = np.atleast_2d(c)
+        # print(Mc, cd_c, a)
         cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a[Mc <= 0.99]
         mcc[Mc <= 0.99]  = b[Mc <= 0.99]
         MDiv[Mc <= 0.99] = c[Mc <= 0.99]

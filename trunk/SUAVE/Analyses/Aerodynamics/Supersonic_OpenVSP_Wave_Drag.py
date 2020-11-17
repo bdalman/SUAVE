@@ -78,7 +78,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         # vortex lattice configurations
         settings.number_panels_spanwise = 10
         settings.number_panels_chordwise = 8
-        settings.use_surrogate                      = True 
+        settings.use_surrogate                      = True
+        settings.plot_surrogate                     = False 
         settings.include_slipstream_effect          = False 
         settings.plot_vortex_distribution           = False
         
@@ -141,12 +142,13 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
             pass
 
         use_surrogate             = self.settings.use_surrogate
+        plot_surrogate            = self.settings.plot_surrogate
         include_slipstream_effect = self.settings.include_slipstream_effect
         vortex_distribution_flag  = self.settings.plot_vortex_distribution 
         n_sw                      = self.settings.number_panels_spanwise    
         n_cw                      = self.settings.number_panels_chordwise  
         
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate, vortex_distribution_flag, n_sw, n_cw, include_slipstream_effect)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate, vortex_distribution_flag, n_sw, n_cw, include_slipstream_effect, plot_surrogate=plot_surrogate)
         
     finalize = initialize        

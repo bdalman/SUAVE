@@ -60,7 +60,7 @@ def plot_xy(x, y, x_label, y_label, plot_header, num_data_per_plot=1, labels=Non
 	plt.rc('font', size=10)
 
 	# Actually plot now
-	if labels != None:
+	if labels is not None:
 		for i in range(0, num_data_per_plot):
 			if marker_flag:
 				marker = marker_flag
@@ -206,7 +206,7 @@ def plot_xy_errors(x, y, x_errors, y_errors, x_label, y_label, plot_header, num_
 # Helper functions
 
 def pick_marker(index):
-	marker_types = np.array(['ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
+	marker_types = np.array(['ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*',    'kv', 'b^', 'ko', 'bv', 'r^', 'cx', 'm1', 'ys', 'g*', 'kv', 'b^'])
 	#marker_types = np.array(['bv', 'r^', 'cx', 'm1', 'ys', 'g*'])
 
 	try:

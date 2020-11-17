@@ -140,7 +140,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,include_slipstream_effect):
+    def initialize(self,use_surrogate, vortex_distribution_flag, n_sw , n_cw ,include_slipstream_effect, plot_surrogate=False):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -174,6 +174,7 @@ class Vortex_Lattice(Aerodynamics):
         # Pack
         settings.vortex_distribution        = VD
         settings.use_surrogate              = use_surrogate
+        settings.plot_surrogate             = plot_surrogate
         settings.include_slipstream_effect  = include_slipstream_effect
         
         # Plot vortex discretization of vehicle
@@ -655,7 +656,7 @@ class Vortex_Lattice(Aerodynamics):
             drag_levels = np.linspace(0,0.2,41)
 
             fig = plt.figure('Coefficient of Induced Drag Surrogate Plot')    
-            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=drag_levels)
+            plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur, levels=21)#levels=drag_levels)
             cbar = plt.colorbar()
             plt.scatter(aoa_grid_points[:], mach_grid_points[:])
             plt.xlabel('Angle of Attack (deg)')
