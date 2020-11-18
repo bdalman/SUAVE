@@ -14,7 +14,11 @@ import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
-import vsp as vsp
+try:
+    import openvsp as vsp
+except ImportError:
+    # This allows SUAVE to build without OpenVSP
+    pass
 import numpy as np
 
 # ----------------------------------------------------------------------

@@ -14,7 +14,11 @@ import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
 
-import vsp as vsp
+try:
+    import openvsp as vsp
+except ImportError:
+    # This allows SUAVE to build without OpenVSP
+    pass
 
 
 # ----------------------------------------------------------------------
